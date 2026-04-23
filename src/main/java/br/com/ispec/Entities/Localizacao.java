@@ -1,83 +1,51 @@
 package br.com.ispec.Entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "localizacao")
 public class Localizacao {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_localizacao")
     private Long id;
 
-    private String bloco;
-    private String andar;
-    private String sala;
-    private String descricao;
-    private String nome;
-
     @ManyToOne
-    @JoinColumn(name = "cliente_id")
+    @JoinColumn(name = "id_cliente", nullable = false)
     @JsonIgnoreProperties("localizacoes")
     private Cliente cliente;
 
-    public Localizacao(){}
+    @Column(name = "bloco", length = 50)
+    private String bloco;
 
-    public Long getId() {
-        return id;
-    }
+    @Column(name = "andar", length = 20)
+    private String andar;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Column(name = "sala", length = 50)
+    private String sala;
 
-    public String getBloco() {
-        return bloco;
-    }
+    @Column(name = "descricao", columnDefinition = "TEXT")
+    private String descricao;
 
-    public void setBloco(String bloco) {
-        this.bloco = bloco;
-    }
+    public Localizacao() {}
 
-    public String getAndar() {
-        return andar;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setAndar(String andar) {
-        this.andar = andar;
-    }
+    public Cliente getCliente() { return cliente; }
+    public void setCliente(Cliente cliente) { this.cliente = cliente; }
 
-    public String getSala() {
-        return sala;
-    }
+    public String getBloco() { return bloco; }
+    public void setBloco(String bloco) { this.bloco = bloco; }
 
-    public void setSala(String sala) {
-        this.sala = sala;
-    }
+    public String getAndar() { return andar; }
+    public void setAndar(String andar) { this.andar = andar; }
 
-    public String getDescricao() {
-        return descricao;
-    }
+    public String getSala() { return sala; }
+    public void setSala(String sala) { this.sala = sala; }
 
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public Cliente getCliente() {
-        return cliente;
-    }
-
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
-    }
-
-    
+    public String getDescricao() { return descricao; }
+    public void setDescricao(String descricao) { this.descricao = descricao; }
 }

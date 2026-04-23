@@ -1,109 +1,54 @@
 package br.com.ispec.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 import java.time.LocalDate;
 
-import br.com.ispec.Enums.Status;
-import jakarta.persistence.*;
-
 @Entity
+@Table(name = "inspecao")
 public class Inspecao {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_inspecao")
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "id_equipamento", nullable = false)
+    @JsonIgnoreProperties({"localizacao", "cliente", "tipoEquipamento"})
     private Equipamento equipamento;
 
     @ManyToOne
-    private Cliente cliente;
-
-    private LocalDate dataInspecao;
-
-    @ManyToOne
+    @JoinColumn(name = "id_responsavel", nullable = false)
     private Usuario responsavel;
 
-    private boolean aprovado;
+    @Column(name = "data_inspecao", nullable = false)
+    private LocalDate dataInspecao;
+
+    @Column(name = "aprovado")
+    private Boolean aprovado;
+
+    @Column(name = "observacoes", columnDefinition = "TEXT")
     private String observacoes;
 
-    @Enumerated(EnumType.STRING)
-    private Status status;
+    public Inspecao() {}
 
-    @ManyToOne
-    private Localizacao localizacao;
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Inspecao(){}
+    public Equipamento getEquipamento() { return equipamento; }
+    public void setEquipamento(Equipamento equipamento) { this.equipamento = equipamento; }
 
-    public Long getId() {
-        return id;
-    }
+    public Usuario getResponsavel() { return responsavel; }
+    public void setResponsavel(Usuario responsavel) { this.responsavel = responsavel; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public LocalDate getDataInspecao() { return dataInspecao; }
+    public void setDataInspecao(LocalDate dataInspecao) { this.dataInspecao = dataInspecao; }
 
-    public Equipamento getEquipamento() {
-        return equipamento;
-    }
+    public Boolean getAprovado() { return aprovado; }
+    public void setAprovado(Boolean aprovado) { this.aprovado = aprovado; }
 
-    public void setEquipamento(Equipamento equipamento) {
-        this.equipamento = equipamento;
-    }
-
-    public Cliente getCliente() {
-        return cliente;
-    }
-
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
-    }
-
-    public LocalDate getDataInspecao() {
-        return dataInspecao;
-    }
-
-    public void setDataInspecao(LocalDate dataInspecao) {
-        this.dataInspecao = dataInspecao;
-    }
-
-    public Usuario getResponsavel() {
-        return responsavel;
-    }
-
-    public void setResponsavel(Usuario responsavel) {
-        this.responsavel = responsavel;
-    }
-
-    public boolean isAprovado() {
-        return aprovado;
-    }
-
-    public void setAprovado(boolean aprovado) {
-        this.aprovado = aprovado;
-    }
-
-    public String getObservacoes() {
-        return observacoes;
-    }
-
-    public void setObservacoes(String observacoes) {
-        this.observacoes = observacoes;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public Localizacao getLocalizacao() {
-        return localizacao;
-    }
-
-    public void setLocalizacao(Localizacao localizacao) {
-        this.localizacao = localizacao;
-    }
-
-    
+    public String getObservacoes() { return observacoes; }
+    public void setObservacoes(String observacoes) { this.observacoes = observacoes; }
 }
+
