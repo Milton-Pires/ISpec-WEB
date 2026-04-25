@@ -27,7 +27,7 @@ public class EquipamentoService {
         equipamento.setNome(equipamentoAtualizado.getNome());
         equipamento.setNumSerie(equipamentoAtualizado.getNumSerie());
         equipamento.setStatus(equipamentoAtualizado.getStatus());
-        equipamento.setDtValidade(equipamentoAtualizado.getDtValidade());
+        equipamento.setDataValidade(equipamentoAtualizado.getDataValidade());
         equipamento.setLocalizacao(equipamentoAtualizado.getLocalizacao());
         return repository.save(equipamento);
     }

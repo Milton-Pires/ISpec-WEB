@@ -9,9 +9,9 @@ import java.time.LocalDate;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "tipo")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = Extintor.class, name = "extintor"),
-        @JsonSubTypes.Type(value = Alarme.class,   name = "alarme"),
-        @JsonSubTypes.Type(value = Hidrante.class, name = "hidrante")
+        @JsonSubTypes.Type(value = Extintor.class, name = "Extintor"),
+        @JsonSubTypes.Type(value = Alarme.class,   name = "Alarme"),
+        @JsonSubTypes.Type(value = Hidrante.class, name = "Hidrante")
 })
 @Entity
 @Table(name = "equipamento")
@@ -44,10 +44,10 @@ public abstract class Equipamento {
     private Localizacao localizacao;
 
     @Column(name = "dt_instalacao", nullable = false)
-    private LocalDate dtInstalacao;
+    private LocalDate dataInstalacao;
 
     @Column(name = "dt_validade", nullable = false)
-    private LocalDate dtValidade;
+    private LocalDate dataValidade;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -58,17 +58,17 @@ public abstract class Equipamento {
     // --- Lógica de negócio ---
 
     public boolean estaVencido() {
-        return dtValidade != null && dtValidade.isBefore(LocalDate.now());
+        return dataValidade != null && dataValidade.isBefore(LocalDate.now());
     }
 
     public boolean precisaRevisao() {
-        if (dtInstalacao == null) return true;
-        return dtInstalacao.plusYears(1).isBefore(LocalDate.now());
+        if (dataInstalacao == null) return true;
+        return dataInstalacao.plusYears(1).isBefore(LocalDate.now());
     }
 
     public int anosDeUso() {
-        if (dtInstalacao == null) return 0;
-        return LocalDate.now().getYear() - dtInstalacao.getYear();
+        if (dataInstalacao == null) return 0;
+        return LocalDate.now().getYear() - dataInstalacao.getYear();
     }
 
     public abstract boolean precisaManutencao();
@@ -95,11 +95,21 @@ public abstract class Equipamento {
     public Localizacao getLocalizacao() { return localizacao; }
     public void setLocalizacao(Localizacao localizacao) { this.localizacao = localizacao; }
 
-    public LocalDate getDtInstalacao() { return dtInstalacao; }
-    public void setDtInstalacao(LocalDate dtInstalacao) { this.dtInstalacao = dtInstalacao; }
+    public LocalDate getDataInstalacao() {
+        return dataInstalacao;
+    }
 
-    public LocalDate getDtValidade() { return dtValidade; }
-    public void setDtValidade(LocalDate dtValidade) { this.dtValidade = dtValidade; }
+    public void setDataInstalacao(LocalDate dataInstalacao) {
+        this.dataInstalacao = dataInstalacao;
+    }
+
+    public LocalDate getDataValidade() {
+        return dataValidade;
+    }
+
+    public void setDataValidade(LocalDate dataValidade) {
+        this.dataValidade = dataValidade;
+    }
 
     public StatusEquipamento getStatus() { return status; }
     public void setStatus(StatusEquipamento status) { this.status = status; }
