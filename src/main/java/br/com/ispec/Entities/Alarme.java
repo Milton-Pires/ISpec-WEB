@@ -1,57 +1,46 @@
 package br.com.ispec.Entities;
 
+import jakarta.persistence.*;
 import java.time.LocalDate;
-import jakarta.persistence.Entity;
 
 @Entity
+@Table(name = "alarme")
+@PrimaryKeyJoinColumn(name = "id_equipamento")
 public class Alarme extends Equipamento {
-    private String tipoSensor;
-    private boolean funcionando;
+
+    @ManyToOne
+    @JoinColumn(name = "id_tipo_sensor", nullable = false)
+    private TipoSensor tipoSensor;
+
+    @Column(name = "funcionando", nullable = false)
+    private boolean funcionando = true;
+
+    @Column(name = "ultima_verificacao")
     private LocalDate ultimaVerificacao;
 
-    public Alarme() {
-    }
+    public Alarme() {}
 
-    
     public boolean precisaTeste() {
-        if (ultimaVerificacao == null)
-            return true;
+        if (ultimaVerificacao == null) return true;
         return ultimaVerificacao.plusMonths(6).isBefore(LocalDate.now());
     }
 
     @Override
-    public String tipoEquipamento() {
-        return "Alarme";
+    public boolean precisaManutencao() {
+        return !funcionando || precisaTeste() || estaVencido();
     }
 
     @Override
-    public boolean precisaManutencao() {
-        if (ultimaVerificacao == null)
-            return true;
-        return !funcionando || ultimaVerificacao.plusMonths(6).isBefore(LocalDate.now());
+    public String tipoEquipamentoNome() {
+        return "Alarme";
     }
 
-    public String getTipoSensor() {
-        return tipoSensor;
-    }
+    public TipoSensor getTipoSensor() { return tipoSensor; }
+    public void setTipoSensor(TipoSensor tipoSensor) { this.tipoSensor = tipoSensor; }
 
-    public void setTipoSensor(String tipoSensor) {
-        this.tipoSensor = tipoSensor;
-    }
+    public boolean isFuncionando() { return funcionando; }
+    public void setFuncionando(boolean funcionando) { this.funcionando = funcionando; }
 
-    public boolean isFuncionando() {
-        return funcionando;
-    }
-
-    public void setFuncionando(boolean funcionando) {
-        this.funcionando = funcionando;
-    }
-
-    public LocalDate getUltimaVerificacao() {
-        return ultimaVerificacao;
-    }
-
-    public void setUltimaVerificacao(LocalDate ultimaVerificacao) {
-        this.ultimaVerificacao = ultimaVerificacao;
-    }
+    public LocalDate getUltimaVerificacao() { return ultimaVerificacao; }
+    public void setUltimaVerificacao(LocalDate ultimaVerificacao) { this.ultimaVerificacao = ultimaVerificacao; }
 }

@@ -3,54 +3,37 @@ package br.com.ispec.Entities;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "hidrante")
+@PrimaryKeyJoinColumn(name = "id_equipamento")
 public class Hidrante extends Equipamento {
-    private double pressaoAgua;
-    private double compMangueira;
-    private boolean disponivel;
 
-    public Hidrante(){}
+    @Column(name = "pressao_agua")
+    private Double pressaoAgua;
 
-    private boolean pressaoSuficiente(){
-        return pressaoAgua >= 5;
-    }
+    @Column(name = "comprimento_mangueira")
+    private Double comprimentoMangueira;
 
-    private boolean operacional(){
-        return disponivel && pressaoSuficiente();
-    }
+    public Hidrante() {}
 
-    @Override
-    public boolean precisaManutencao(){
-        return !operacional() || compMangueira < 20;
+    private boolean pressaoSuficiente() {
+        return pressaoAgua != null && pressaoAgua >= 5;
     }
 
     @Override
-    public String tipoEquipamento(){
+    public boolean precisaManutencao() {
+        return !pressaoSuficiente()
+            || (comprimentoMangueira != null && comprimentoMangueira < 20)
+            || estaVencido();
+    }
+
+    @Override
+    public String tipoEquipamentoNome() {
         return "Hidrante";
     }
 
-    public double getPressaoAgua() {
-        return pressaoAgua;
-    }
+    public Double getPressaoAgua() { return pressaoAgua; }
+    public void setPressaoAgua(Double pressaoAgua) { this.pressaoAgua = pressaoAgua; }
 
-    public void setPressaoAgua(double pressaoAgua) {
-        this.pressaoAgua = pressaoAgua;
-    }
-
-    public double getCompMangueira() {
-        return compMangueira;
-    }
-
-    public void setCompMangueira(double compMangueira) {
-        this.compMangueira = compMangueira;
-    }
-
-    public boolean isDisponivel() {
-        return disponivel;
-    }
-
-    public void setDisponivel(boolean disponivel) {
-        this.disponivel = disponivel;
-    }
-
-    
+    public Double getComprimentoMangueira() { return comprimentoMangueira; }
+    public void setComprimentoMangueira(Double comprimentoMangueira) { this.comprimentoMangueira = comprimentoMangueira; }
 }

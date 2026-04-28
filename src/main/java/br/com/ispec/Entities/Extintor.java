@@ -1,67 +1,57 @@
 package br.com.ispec.Entities;
 
-import java.time.LocalDate;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
+@Table(name = "extintor")
+@PrimaryKeyJoinColumn(name = "id_equipamento")
 public class Extintor extends Equipamento {
-    private String classeFogo;
-    private double capacidade;
-    private LocalDate dataValidade;
-    private int pressao;
 
-    public Extintor(){}
+    @ManyToOne
+    @JoinColumn(name = "id_agente", nullable = false)
+    private AgenteExtintor agente;
 
-    public boolean estaVencido(){
-        return dataValidade != null && dataValidade.isBefore(LocalDate.now());
-    }
+    @Column(name = "capacidade")
+    private Double capacidade;
 
-    public boolean pressaoAdequada(){
-        return pressao >= 10;
+    @Column(name = "pressao")
+    private Double pressao;
+
+    @ManyToMany
+    @JoinTable(
+        name = "equipamento_classe_fogo",
+        joinColumns = @JoinColumn(name = "id_equipamento"),
+        inverseJoinColumns = @JoinColumn(name = "id_cl_fogo")
+    )
+    private List<ClasseFogo> classesFogo;
+
+    public Extintor() {}
+
+    public boolean pressaoAdequada() {
+        return pressao != null && pressao >= 10;
     }
 
     @Override
-    public boolean precisaManutencao(){
-        return estaVencido();
+    public boolean precisaManutencao() {
+        return estaVencido() || !pressaoAdequada();
     }
 
     @Override
-    public String tipoEquipamento(){
+    public String tipoEquipamentoNome() {
         return "Extintor";
     }
 
-    public String getClasseFogo() {
-        return classeFogo;
-    }
+    public AgenteExtintor getAgente() { return agente; }
+    public void setAgente(AgenteExtintor agente) { this.agente = agente; }
 
-    public void setClasseFogo(String classeFogo) {
-        this.classeFogo = classeFogo;
-    }
+    public Double getCapacidade() { return capacidade; }
+    public void setCapacidade(Double capacidade) { this.capacidade = capacidade; }
 
-    public double getCapacidade() {
-        return capacidade;
-    }
+    public Double getPressao() { return pressao; }
+    public void setPressao(Double pressao) { this.pressao = pressao; }
 
-    public void setCapacidade(double capacidade) {
-        this.capacidade = capacidade;
-    }
-
-    public LocalDate getDataValidade() {
-        return dataValidade;
-    }
-
-    public void setDataValidade(LocalDate dataValidade) {
-        this.dataValidade = dataValidade;
-    }
-
-    public int getPressao() {
-        return pressao;
-    }
-
-    public void setPressao(int pressao) {
-        this.pressao = pressao;
-    }
-
-    
+    public List<ClasseFogo> getClassesFogo() { return classesFogo; }
+    public void setClassesFogo(List<ClasseFogo> classesFogo) { this.classesFogo = classesFogo; }
 }
