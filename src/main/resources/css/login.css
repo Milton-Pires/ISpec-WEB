@@ -1,0 +1,44 @@
+/* ═══════════════════════════════════════
+   iSpec – Login Page Styles
+   ═══════════════════════════════════════ */
+
+html, body { height: 100%; }
+
+/* ── Animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+
+.anim-up-1 { animation: fadeUp .6s 0s   ease both; }
+.anim-up-2 { animation: fadeUp .6s .1s  ease both; }
+.anim-up-3 { animation: fadeUp .6s .2s  ease both; }
+.anim-up-4 { animation: fadeUp .6s .3s  ease both; }
+.anim-up-5 { animation: fadeUp .6s .4s  ease both; }
+.anim-in   { animation: fadeIn  .8s .1s ease both; }
+
+.shield-float { animation: float 3.5s ease-in-out infinite; }
+
+/* ── Hero dot pattern ── */
+.hero-dots {
+  background-image: radial-gradient(circle, rgba(255,255,255,.1) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+/* ── Input field focus ring ── */
+.input-field {
+  transition: border-color .2s, box-shadow .2s;
+}
+.input-field:focus {
+  outline: none;
+  border-color: #C0001A;
+  box-shadow: 0 0 0 3px rgba(192,0,26,.12);
+}

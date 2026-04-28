@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iSpec – Login</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              red:       '#C0001A',
+              reddark:   '#8B0012',
+              redlight:  '#E8001E',
+              green:     '#388E3C',
+              greendark: '#2E7D32',
+            }
+          },
+          fontFamily: {
+            sora: ['Sora', 'sans-serif'],
+            dm:   ['DM Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/login.css">
+</head>
+<body class="min-h-screen bg-gray-50 flex">
+
+<!-- ══════════════ PAINEL ESQUERDO ══════════════ -->
+<div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-brand-reddark via-brand-red to-brand-redlight
+            hero-dots flex-col items-center justify-center relative overflow-hidden px-12">
+
+  <div class="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-white/5 pointer-events-none"></div>
+  <div class="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-white/5 pointer-events-none"></div>
+  <div class="absolute top-1/3 right-0 w-32 h-32 rounded-full bg-white/5 pointer-events-none"></div>
+
+  <div class="anim-in relative z-10 flex flex-col items-center text-center gap-8 max-w-md">
+
+    <a href="index.html" class="flex items-center gap-3 mb-2">
+      <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-xl">
+        <svg viewBox="0 0 24 24" class="w-7 h-7" fill="none" stroke="#C0001A" stroke-width="2.5"
+             stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2l9 4v6c0 5-3.5 9.5-9 11C6.5 21.5 3 17 3 12V6l9-4z"/>
+          <polyline points="9 12 11 14 15 10"/>
+        </svg>
+      </div>
+      <span class="font-sora font-extrabold text-white text-3xl tracking-tight">iSpec</span>
+    </a>
+
+    <div class="shield-float">
+      <div class="w-40 h-40 bg-white/15 backdrop-blur border border-white/25 rounded-full
+                  flex items-center justify-center shadow-2xl">
+        <div class="w-28 h-28 bg-white rounded-full flex items-center justify-center shadow-xl">
+          <svg viewBox="0 0 24 24" class="w-14 h-14" fill="none" stroke-width="1.8"
+               stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2l9 4v6c0 5-3.5 9.5-9 11C6.5 21.5 3 17 3 12V6l9-4z"
+                  fill="#FFF0F0" stroke="#C0001A"/>
+            <polyline points="8 12 11 15 16 9" stroke="#388E3C" stroke-width="2.5"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h2 class="font-sora font-extrabold text-white text-3xl leading-tight mb-3">
+        Bem-vindo de volta!
+      </h2>
+      <p class="text-white/75 text-base leading-relaxed">
+        Acesse o painel e gerencie todas as inspeções de equipamentos de incêndio
+        da sua empresa com segurança e eficiência.
+      </p>
+      <p class="text-white/60 text-xs mt-4">
+        Dúvidas? <a href="mailto:contato@ispec.com" class="underline hover:text-white">contato@ispec.com</a>
+      </p>
+    </div>
+
+    <div class="flex gap-3 flex-wrap justify-center">
+      <div class="bg-white/15 backdrop-blur border border-white/20 text-white text-xs
+                  font-semibold px-4 py-2 rounded-full">
+        ✅ 2.400+ inspeções realizadas
+      </div>
+      <div class="bg-white/15 backdrop-blur border border-white/20 text-white text-xs
+                  font-semibold px-4 py-2 rounded-full">
+        🏢 300+ empresas ativas
+      </div>
+      <div class="bg-white/15 backdrop-blur border border-white/20 text-white text-xs
+                  font-semibold px-4 py-2 rounded-full">
+        🔒 100% seguro
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════ PAINEL DIREITO (FORM) ══════════════ -->
+<div class="w-full lg:w-1/2 flex flex-col items-center justify-center px-6 py-12 min-h-screen">
+
+  <!-- Logo mobile -->
+  <a href="index.html"
+     class="lg:hidden flex items-center gap-2 mb-10 font-sora font-extrabold text-2xl text-brand-red">
+    <div class="w-9 h-9 bg-brand-red rounded-full flex items-center justify-center">
+      <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="white" stroke-width="2.5"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2l9 4v6c0 5-3.5 9.5-9 11C6.5 21.5 3 17 3 12V6l9-4z"/>
+        <polyline points="9 12 11 14 15 10"/>
+      </svg>
+    </div>
+    iSpec
+  </a>
+
+  <div class="w-full max-w-md">
+
+    <div class="anim-up-1 mb-8">
+      <h1 class="font-sora font-extrabold text-gray-900 text-3xl mb-1">Entrar na conta</h1>
+      <p class="text-gray-500 text-sm">Informe suas credenciais para acessar o painel.</p>
+    </div>
+
+    <form id="login-form" class="flex flex-col gap-5">
+
+      <!-- E-mail -->
+      <div class="anim-up-2 flex flex-col gap-1.5">
+        <label class="font-sora font-semibold text-gray-700 text-sm" for="email">E-mail</label>
+        <div class="relative">
+          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 text-gray-400" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <polyline points="2,4 12,13 22,4"/>
+            </svg>
+          </span>
+          <input id="email" type="email" placeholder="seu@email.com"
+                 class="input-field w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200
+                        bg-white text-sm text-gray-800 placeholder-gray-400"/>
+        </div>
+      </div>
+
+      <!-- Senha -->
+      <div class="anim-up-3 flex flex-col gap-1.5">
+        <div class="flex items-center justify-between">
+          <label class="font-sora font-semibold text-gray-700 text-sm" for="password">Senha</label>
+          <a href="#" class="text-brand-red text-xs font-medium hover:underline">Esqueceu a senha?</a>
+        </div>
+        <div class="relative">
+          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 text-gray-400" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0110 0v4"/>
+            </svg>
+          </span>
+          <input id="password" type="password" placeholder="••••••••"
+                 class="input-field w-full pl-10 pr-11 py-3 rounded-xl border border-gray-200
+                        bg-white text-sm text-gray-800 placeholder-gray-400"/>
+          <button type="button" id="toggle-pass"
+                  class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400
+                         hover:text-brand-red transition-colors cursor-pointer">
+            <svg id="eye-icon" viewBox="0 0 24 24" class="w-5 h-5" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Lembrar-me -->
+      <div class="anim-up-4 flex items-center gap-2">
+        <input type="checkbox" id="remember"
+               class="w-4 h-4 rounded border-gray-300 accent-brand-red cursor-pointer"/>
+        <label for="remember" class="text-sm text-gray-600 cursor-pointer select-none">
+          Manter-me conectado
+        </label>
+      </div>
+
+      <!-- Botão submit -->
+      <div class="anim-up-5">
+        <button type="submit" id="submit-btn"
+                class="w-full bg-brand-red hover:bg-brand-reddark text-white py-3.5 rounded-xl
+                       font-sora font-bold text-base transition-all hover:-translate-y-0.5
+                       hover:shadow-lg flex items-center justify-center gap-2">
+          <span id="btn-text">Entrar</span>
+          <svg id="btn-arrow" viewBox="0 0 24 24" class="w-4 h-4" fill="none"
+               stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+          <svg id="btn-spin" class="hidden animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,.3)" stroke-width="3"/>
+            <path d="M12 2a10 10 0 0110 10" stroke="white" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mensagem de erro -->
+      <div id="error-msg"
+           class="hidden bg-red-50 border border-red-200 text-brand-red text-sm
+                  px-4 py-3 rounded-xl flex items-center gap-2">
+        <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16" stroke-width="3"/>
+        </svg>
+        <span id="error-text">E-mail ou senha incorretos.</span>
+      </div>
+
+    </form>
+
+    <!-- Divisor -->
+    <div class="anim-up-5 flex items-center gap-3 my-6">
+      <div class="flex-1 h-px bg-gray-200"></div>
+      <span class="text-gray-400 text-xs font-medium">ou</span>
+      <div class="flex-1 h-px bg-gray-200"></div>
+    </div>
+
+    <!-- SSO -->
+    <div class="anim-up-5 flex flex-col gap-3">
+      <button class="w-full flex items-center justify-center gap-3 border border-gray-200
+                     bg-white hover:bg-gray-50 text-gray-700 py-3 rounded-xl
+                     font-dm font-medium text-sm transition-all hover:shadow-sm">
+        <svg viewBox="0 0 24 24" class="w-5 h-5" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        Entrar com Google
+      </button>
+
+      <button class="w-full flex items-center justify-center gap-3 border border-gray-200
+                     bg-white hover:bg-gray-50 text-gray-700 py-3 rounded-xl
+                     font-dm font-medium text-sm transition-all hover:shadow-sm">
+        <svg viewBox="0 0 24 24" class="w-5 h-5" fill="#0078D4">
+          <path d="M11.5 2.5H2.5v9h9v-9zm1 0v9h9v-9h-9zm-1 10H2.5v9h9v-9zm1 0v9h9v-9h-9z"/>
+        </svg>
+        Entrar com Microsoft
+      </button>
+    </div>
+
+    <p class="anim-up-5 text-center text-sm text-gray-500 mt-8">
+      Não tem uma conta?
+      <a href="mailto:contato@ispec.com?subject=Solicitação de Acesso iSpec" class="text-brand-red font-semibold hover:underline">Solicitar acesso</a>
+    </p>
+
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="../js/login.js"></script>
+
+</body>
+</html>
