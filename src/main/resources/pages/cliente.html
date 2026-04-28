@@ -346,29 +346,17 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="sm:col-span-2 flex flex-col gap-1.5">
-          <label class="font-sora font-semibold text-gray-700 text-xs">Nome / Razão Social <span class="text-brand-red">*</span></label>
+          <label class="font-sora font-semibold text-gray-700 text-xs">Razão Social <span class="text-brand-red">*</span></label>
           <input id="f-nome" type="text" placeholder="Ex: Condomínio Parque Verde"
                  class="field px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-dm transition-all" required/>
         </div>
 
         <div class="flex flex-col gap-1.5">
-          <label class="font-sora font-semibold text-gray-700 text-xs">CNPJ / CPF <span class="text-brand-red">*</span></label>
+          <label class="font-sora font-semibold text-gray-700 text-xs">CNPJ <span class="text-brand-red">*</span></label>
           <input id="f-doc" type="text" placeholder="00.000.000/0001-00"
                  class="field px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-dm transition-all" required/>
         </div>
 
-        <div class="flex flex-col gap-1.5">
-          <label class="font-sora font-semibold text-gray-700 text-xs">Tipo</label>
-          <select id="f-tipo" class="field px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-dm bg-white transition-all">
-            <option value="Condomínio">Condomínio</option>
-            <option value="Empresa">Empresa</option>
-            <option value="Hospital">Hospital</option>
-            <option value="Shopping">Shopping</option>
-            <option value="Indústria">Indústria</option>
-            <option value="Escola">Escola</option>
-            <option value="Outro">Outro</option>
-          </select>
-        </div>
 
         <div class="flex flex-col gap-1.5">
           <label class="font-sora font-semibold text-gray-700 text-xs">E-mail</label>
@@ -406,15 +394,10 @@
                  class="field px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-dm transition-all"/>
         </div>
 
-        <div class="flex flex-col gap-1.5">
-          <label class="font-sora font-semibold text-gray-700 text-xs">Qtd. Equipamentos</label>
-          <input id="f-equip" type="number" min="0" placeholder="0"
-                 class="field px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-dm transition-all"/>
-        </div>
 
         <div class="flex flex-col gap-1.5">
           <label class="font-sora font-semibold text-gray-700 text-xs">Status</label>
-          <select id="f-status" class="field px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-dm bg-white transition-all">
+          <select id="f-status_cliente" class="field px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-dm bg-white transition-all">
             <option value="ativo">Ativo</option>
             <option value="pendente">Pendente</option>
             <option value="inativo">Inativo</option>
