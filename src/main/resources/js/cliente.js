@@ -16,9 +16,9 @@ function avatarColor(name) {
 
 function updateKpis() {
   document.getElementById('kpi-total').textContent     = clients.length;
-  document.getElementById('kpi-ativos').textContent    = clients.filter(c => c.status === 'ativo').length;
-  document.getElementById('kpi-pendentes').textContent = clients.filter(c => c.status === 'pendente').length;
-  document.getElementById('kpi-inativos').textContent  = clients.filter(c => c.status === 'inativo').length;
+  document.getElementById('kpi-ativos').textContent    = clients.filter(c => c.status_cliente === 'ativo').length;
+  document.getElementById('kpi-pendentes').textContent = clients.filter(c => c.status_cliente === 'pendente').length;
+  document.getElementById('kpi-inativos').textContent  = clients.filter(c => c.status_cliente === 'inativo').length;
 }
 
 function renderTable() {
@@ -27,7 +27,7 @@ function renderTable() {
   const empty = document.getElementById('empty-state');
 
   const filtered = clients.filter(c => {
-    const matchFilter = activeFilter === 'todos' || c.status === activeFilter;
+    const matchFilter = activeFilter === 'todos' || c.status_cliente === activeFilter;
     const matchSearch = !q || c.nome.toLowerCase().includes(q)
                             || c.doc.includes(q)
                             || c.cidade.toLowerCase().includes(q)
@@ -78,8 +78,8 @@ function renderTable() {
         <span class="text-gray-600 text-sm font-dm">${c.cidade}/${c.uf}</span>
       </td>
       <td class="px-5 py-4">
-        <span class="px-2.5 py-1 rounded-full text-[11px] font-sora font-semibold badge-${c.status}">
-          ${c.status.charAt(0).toUpperCase() + c.status.slice(1)}
+        <span class="px-2.5 py-1 rounded-full text-[11px] font-sora font-semibold badge-${c.status_cliente}">
+          ${c.status_cliente.charAt(0).toUpperCase() + c.status_cliente.slice(1)}
         </span>
       </td>
       <td class="px-5 py-4 hidden sm:table-cell">
@@ -162,17 +162,15 @@ function openModalEdit(id) {
   if (!c) return;
   document.getElementById('modal-title').textContent = 'Editar Cliente';
   document.getElementById('edit-id').value  = c.id;
-  document.getElementById('f-nome').value   = c.nome;
-  document.getElementById('f-doc').value    = c.doc;
-  document.getElementById('f-tipo').value   = c.tipo;
+  document.getElementById('f-razao_social').value   = c.nome;
+  document.getElementById('f-cnpj').value    = c.doc;
   document.getElementById('f-email').value  = c.email;
   document.getElementById('f-tel').value    = c.tel;
   document.getElementById('f-resp').value   = c.resp;
   document.getElementById('f-cidade').value = c.cidade;
   document.getElementById('f-uf').value     = c.uf;
   document.getElementById('f-end').value    = c.end;
-  document.getElementById('f-equip').value  = c.equip;
-  document.getElementById('f-status').value = c.status;
+  document.getElementById('f-status_cliente_cliente_cliente').value = c.status_cliente;
   document.getElementById('f-obs').value    = c.obs;
   document.getElementById('modal').classList.add('open');
 }
@@ -189,17 +187,15 @@ function saveClient(e) {
   e.preventDefault();
   const editId = document.getElementById('edit-id').value;
   const data = {
-    nome:   document.getElementById('f-nome').value.trim(),
-    doc:    document.getElementById('f-doc').value.trim(),
-    tipo:   document.getElementById('f-tipo').value,
+    razao_social:   document.getElementById('f-razao_social').value.trim(),
+    cnpj:    document.getElementById('f-cnpj').value.trim(),
     email:  document.getElementById('f-email').value.trim(),
     tel:    document.getElementById('f-tel').value.trim(),
     resp:   document.getElementById('f-resp').value.trim(),
     cidade: document.getElementById('f-cidade').value.trim(),
     uf:     document.getElementById('f-uf').value.trim().toUpperCase(),
     end:    document.getElementById('f-end').value.trim(),
-    equip:  parseInt(document.getElementById('f-equip').value, 10) || 0,
-    status: document.getElementById('f-status').value,
+    status_cliente: document.getElementById('f-status_cliente_cliente').value,
     obs:    document.getElementById('f-obs').value.trim(),
   };
 
@@ -222,27 +218,25 @@ function openDrawer(id) {
   viewingId = id;
 
   document.getElementById('d-initial').textContent  = c.nome.charAt(0).toUpperCase();
-  document.getElementById('d-nome').textContent     = c.nome;
-  document.getElementById('d-tipo').textContent     = c.tipo;
-  document.getElementById('d-doc').textContent      = c.doc;
+  document.getElementById('d-razao_social').textContent     = c.nome;
+  document.getElementById('d-cnpj').textContent      = c.doc;
   document.getElementById('d-resp').textContent     = c.resp  || '—';
   document.getElementById('d-email').textContent    = c.email || '—';
   document.getElementById('d-tel').textContent      = c.tel   || '—';
   document.getElementById('d-end').textContent      = c.end   || '—';
   document.getElementById('d-cidade').textContent   = `${c.cidade}${c.uf ? ' – ' + c.uf : ''}`;
-  document.getElementById('d-equip').textContent    = c.equip;
   document.getElementById('d-obs').textContent      = c.obs   || 'Nenhuma observação registrada.';
 
-  const statusMap = {
+  const status_clienteMap = {
     ativo:    { dot:'bg-green-500',  text:'Ativo',    bg:'bg-green-50 text-green-700' },
     pendente: { dot:'bg-amber-400',  text:'Pendente', bg:'bg-amber-50 text-amber-700' },
     inativo:  { dot:'bg-red-400',    text:'Inativo',  bg:'bg-red-50 text-red-700' },
   };
-  const s = statusMap[c.status] || statusMap.inativo;
-  const banner = document.getElementById('d-status-banner');
+  const s = status_clienteMap[c.status_cliente] || status_clienteMap.inativo;
+  const banner = document.getElementById('d-status_cliente-banner');
   banner.className = `px-6 py-3 flex items-center gap-2 border-b border-gray-100 ${s.bg}`;
-  document.getElementById('d-status-dot').className  = `w-2 h-2 rounded-full ${s.dot}`;
-  document.getElementById('d-status-text').textContent = s.text;
+  document.getElementById('d-status_cliente-dot').className  = `w-2 h-2 rounded-full ${s.dot}`;
+  document.getElementById('d-status_cliente-text').textContent = s.text;
 
   document.getElementById('drawer-backdrop').classList.add('open');
   document.getElementById('drawer').classList.add('open');
