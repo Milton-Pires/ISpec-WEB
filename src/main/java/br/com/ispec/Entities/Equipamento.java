@@ -46,7 +46,7 @@ public abstract class Equipamento {
     @Column(name = "dt_instalacao", nullable = false)
     private LocalDate dataInstalacao;
 
-    @Column(name = "dt_validade", nullable = false)
+    @Column(name = "dt_validade")
     private LocalDate dataValidade;
 
     @Enumerated(EnumType.STRING)

@@ -18,6 +18,7 @@ public class Alarme extends Equipamento {
     @Column(name = "ultima_verificacao")
     private LocalDate ultimaVerificacao;
 
+
     public Alarme() {}
 
     public boolean precisaTeste() {
