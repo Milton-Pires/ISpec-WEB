@@ -19,5 +19,5 @@ public class SenhaValidator {
 
         if (!senha.matches(".*[!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>/?].*"))
             throw new IllegalArgumentException("A senha deve conter ao menos um símbolo especial.");
-    }
+    };
 }
