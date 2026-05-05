@@ -71,12 +71,13 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({ email, senha: password })
       });
 
-      const msg = await response.text();
+      const data = await response.text();
 
       if (response.ok) {
+        localStorage.setItem('token', data);
         window.location.href = 'main.html';
       } else {
-        showError(msg);
+        showError(data);
       }
     } catch (err) {
       showError('Erro ao conectar com o servidor. Tente novamente.');

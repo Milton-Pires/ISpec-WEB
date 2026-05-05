@@ -59,6 +59,16 @@ public class SecurityConfig {
                         .defaultSuccessUrl("/pages/main.html", true)
                         .failureUrl("/pages/login.html?error=true")
                 )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(401);
+                            response.getWriter().write("Não autenticado.");
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(403);
+                            response.getWriter().write("Acesso negado.");
+                        })
+                )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
