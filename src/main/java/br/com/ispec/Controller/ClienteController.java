@@ -15,28 +15,33 @@ public class ClienteController {
     private final ClienteService service;
     private final EquipamentoService equipamentoService;
 
-    public ClienteController(ClienteService service, EquipamentoService equipamentoService){
+    public ClienteController(ClienteService service, EquipamentoService equipamentoService) {
         this.service = service;
         this.equipamentoService = equipamentoService;
     }
 
     @GetMapping
-    public List<Cliente> listar(){
+    public List<Cliente> listar() {
         return service.listarTodos();
     }
 
     @GetMapping("/{id}")
-    public Cliente buscar(@PathVariable Long id){
+    public Cliente buscar(@PathVariable Long id) {
         return service.buscarPorId(id);
     }
 
     @PostMapping
-    public Cliente criar(@RequestBody Cliente cliente){
+    public Cliente criar(@RequestBody Cliente cliente) {
         return service.salvar(cliente);
     }
 
+    @PutMapping("/{id}")
+    public Cliente atualizar(@PathVariable Long id, @RequestBody Cliente cliente) {
+        return service.atualizar(id, cliente);
+    }
+
     @DeleteMapping("/{id}")
-    public void deletar(@PathVariable Long id){
+    public void deletar(@PathVariable Long id) {
         service.deletar(id);
     }
 

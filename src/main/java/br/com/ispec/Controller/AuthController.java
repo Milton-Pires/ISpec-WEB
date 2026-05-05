@@ -1,5 +1,6 @@
 package br.com.ispec.Controller;
 
+import br.com.ispec.Config.JwtUtil;
 import br.com.ispec.Entities.Usuario;
 import br.com.ispec.Service.UsuarioService;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +13,14 @@ public class AuthController {
 
     private final UsuarioService usuarioService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
-    public AuthController(UsuarioService usuarioService, PasswordEncoder passwordEncoder) {
+    public AuthController(UsuarioService usuarioService,
+                          PasswordEncoder passwordEncoder,
+                          JwtUtil jwtUtil) {
         this.usuarioService = usuarioService;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/cadastro")
@@ -33,7 +38,11 @@ public class AuthController {
         try {
             Usuario encontrado = usuarioService.buscarPorEmail(usuario.getEmail());
             if (passwordEncoder.matches(usuario.getSenha(), encontrado.getSenha())) {
-                return ResponseEntity.ok("Login realizado com sucesso!");
+                String token = jwtUtil.gerarToken(
+                        encontrado.getEmail(),
+                        encontrado.getTipo().name()
+                );
+                return ResponseEntity.ok(token);
             }
             return ResponseEntity.status(401).body("Senha incorreta.");
         } catch (RuntimeException e) {
