@@ -85,6 +85,7 @@ public class Cliente {
     @Column(name = "uf", length = 2)
     private String uf;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status_cliente", nullable = false)
     private StatusCliente status = StatusCliente.pendente;
 
