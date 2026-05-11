@@ -23,10 +23,12 @@ function estaVencido(dataValidade) {
 }
 
 // ── KPIs ────────────────────────────────
+// Os KPIs sempre refletem o total geral de equipamentos,
+// independente dos filtros ativos na tabela.
 function updateKpis() {
-    document.getElementById('kpi-total').textContent     = equipamentos.length;
-    document.getElementById('kpi-manutencao').textContent = equipamentos.filter(e => e.precisaManutencao).length;
-    document.getElementById('kpi-vencidos').textContent   = equipamentos.filter(e => estaVencido(e.dataValidade)).length;
+    document.getElementById('kpi-total').textContent      = equipamentos.length;
+    document.getElementById('kpi-manutencao').textContent = equipamentos.filter(e => e.status === 'EM_MANUTENCAO').length;
+    document.getElementById('kpi-vencidos').textContent   = equipamentos.filter(e => e.status === 'VENCIDO').length;
 }
 
 // ── Filtros ──────────────────────────────
@@ -84,6 +86,7 @@ function renderTable() {
         tbody.innerHTML = '';
         empty.classList.remove('hidden');
         empty.classList.add('flex');
+        updateKpis(); // atualiza mesmo quando a tabela está vazia por filtro
         return;
     }
 
@@ -91,10 +94,10 @@ function renderTable() {
     empty.classList.remove('flex');
 
     tbody.innerHTML = filtered.map((e, i) => {
-        const tipo       = e.tipo || 'Equipamento';
-        const vencido    = estaVencido(e.dataValidade);
+        const tipo        = e.tipo || 'Equipamento';
+        const vencido     = estaVencido(e.dataValidade);
         const statusLabel = vencido ? 'vencido' : e.status?.toLowerCase() || 'ativo';
-        const statusText  = statusLabel.charAt(0).toUpperCase() + statusLabel.slice(1);
+        const statusText  = statusLabel.charAt(0).toUpperCase() + statusLabel.slice(1).replace('_', ' ');
         const locDesc     = e.localizacao
             ? [e.localizacao.bloco, e.localizacao.andar, e.localizacao.sala].filter(Boolean).join(' / ')
             : '—';
@@ -183,6 +186,10 @@ function openModal() {
     document.getElementById('equip-form').reset();
     document.getElementById('edit-id').value = '';
     ocultarCamposEspecificos();
+
+    // Esconde o campo de status — não faz sentido na criação
+    document.getElementById('campo-status').classList.add('hidden');
+
     carregarClientesSelect();
     document.getElementById('modal').classList.add('open');
 }
@@ -197,6 +204,10 @@ function openModalEdit(id) {
     document.getElementById('f-num-serie').value       = e.numSerie    || '';
     document.getElementById('f-dt-instalacao').value   = e.dataInstalacao || '';
     document.getElementById('f-dt-validade').value     = e.dataValidade   || '';
+
+    // Exibe e preenche o campo de status na edição
+    document.getElementById('campo-status').classList.remove('hidden');
+    document.getElementById('f-status').value = e.status || 'ATIVO';
 
     const tipo = e.tipo || '';
     document.getElementById('f-tipo').value = tipo;
@@ -344,6 +355,7 @@ async function saveEquipamento(ev) {
         data.comprimentoMangueira = parseFloat(document.getElementById('f-comprimento-mangueira').value) || null;
     }
 
+    // Salva os dados do equipamento (POST ou PUT)
     const response = editId
         ? await apiFetch(`/equipamentos/${editId}`, { method: 'PUT', body: JSON.stringify(data) })
         : await apiFetch('/equipamentos', { method: 'POST', body: JSON.stringify(data) });
@@ -356,6 +368,14 @@ async function saveEquipamento(ev) {
         return;
     }
 
+    // Se for edição, envia a mudança de status separadamente via PATCH
+    // O backend recalcula o status automaticamente no GET, mas aqui
+    // respeitamos a escolha manual do usuário
+    if (editId) {
+        const status = document.getElementById('f-status').value;
+        await apiFetch(`/equipamentos/${editId}/status?status=${status}`, { method: 'PATCH' });
+    }
+
     closeModal();
     await carregarEquipamentos();
 }
@@ -366,30 +386,31 @@ function openDrawer(id) {
     if (!e) return;
     viewingId = id;
 
-    const tipo   = e.tipo || 'Equipamento';
+    const tipo    = e.tipo || 'Equipamento';
     const vencido = estaVencido(e.dataValidade);
     const statusLabel = vencido ? 'vencido' : e.status?.toLowerCase() || 'ativo';
     const locDesc = e.localizacao
         ? [e.localizacao.bloco, e.localizacao.andar, e.localizacao.sala].filter(Boolean).join(' / ')
         : '—';
 
-    document.getElementById('d-nome').textContent         = e.nome      || '—';
-    document.getElementById('d-num-serie').textContent    = e.numSerie  || 'Sem nº de série';
-    document.getElementById('d-tipo').textContent         = tipo;
-    document.getElementById('d-cliente').textContent      = e.cliente?.razaoSocial || '—';
-    document.getElementById('d-localizacao').textContent  = locDesc;
+    document.getElementById('d-nome').textContent          = e.nome      || '—';
+    document.getElementById('d-num-serie').textContent     = e.numSerie  || 'Sem nº de série';
+    document.getElementById('d-tipo').textContent          = tipo;
+    document.getElementById('d-cliente').textContent       = e.cliente?.razaoSocial || '—';
+    document.getElementById('d-localizacao').textContent   = locDesc;
     document.getElementById('d-dt-instalacao').textContent = formatarData(e.dataInstalacao);
     document.getElementById('d-dt-validade').textContent   = formatarData(e.dataValidade);
 
     const statusMap = {
-        ativo:    { dot: 'bg-green-500', text: 'Ativo',    bg: 'bg-green-50 text-green-700' },
-        inativo:  { dot: 'bg-gray-400',  text: 'Inativo',  bg: 'bg-gray-50 text-gray-700' },
-        vencido:  { dot: 'bg-red-500',   text: 'Vencido',  bg: 'bg-red-50 text-red-700' },
+        ativo:         { dot: 'bg-green-500', text: 'Ativo',           bg: 'bg-green-50 text-green-700' },
+        inativo:       { dot: 'bg-gray-400',  text: 'Inativo',         bg: 'bg-gray-50 text-gray-700' },
+        vencido:       { dot: 'bg-red-500',   text: 'Vencido',         bg: 'bg-red-50 text-red-700' },
+        em_manutencao: { dot: 'bg-yellow-500',text: 'Em Manutenção',   bg: 'bg-yellow-50 text-yellow-700' },
     };
     const s = statusMap[statusLabel] || statusMap.ativo;
     const banner = document.getElementById('d-status-banner');
     banner.className = `px-6 py-3 flex items-center gap-2 border-b border-gray-100 ${s.bg}`;
-    document.getElementById('d-status-dot').className  = `w-2 h-2 rounded-full ${s.dot}`;
+    document.getElementById('d-status-dot').className   = `w-2 h-2 rounded-full ${s.dot}`;
     document.getElementById('d-status-text').textContent = s.text;
 
     document.getElementById('drawer-backdrop').classList.add('open');

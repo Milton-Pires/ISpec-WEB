@@ -2,7 +2,7 @@ package br.com.ispec.Controller;
 
 import java.util.*;
 
-import br.com.ispec.Entities.Cliente;
+import br.com.ispec.Enums.StatusEquipamento;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.ispec.Entities.Equipamento;
@@ -20,7 +20,7 @@ public class EquipamentoController {
     private final ManutencaoService manutencaoService;
 
     public EquipamentoController(EquipamentoService service, InspecaoService inspecaoService,
-            ManutencaoService manutencaoService) {
+                                 ManutencaoService manutencaoService) {
         this.service = service;
         this.inspecaoService = inspecaoService;
         this.manutencaoService = manutencaoService;
@@ -43,13 +43,23 @@ public class EquipamentoController {
 
     @PutMapping("/{id}")
     public Equipamento atualizar(@PathVariable Long id,
-            @RequestBody Equipamento equipamento) {
+                                 @RequestBody Equipamento equipamento) {
         return service.atualizar(id, equipamento);
     }
 
     @DeleteMapping("/{id}")
     public void deletar(@PathVariable Long id) {
         service.deletar(id);
+    }
+
+    /**
+     * Atualiza apenas o status do equipamento manualmente.
+     * Exemplo: PATCH /equipamentos/5/status?status=INATIVO
+     */
+    @PatchMapping("/{id}/status")
+    public Equipamento atualizarStatus(@PathVariable Long id,
+                                       @RequestParam StatusEquipamento status) {
+        return service.atualizarStatus(id, status);
     }
 
     @GetMapping("/{id}/inspecoes")

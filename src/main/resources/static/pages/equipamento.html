@@ -362,6 +362,19 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
+                <div id="campo-status" class="sm:col-span-2 hidden flex flex-col gap-1.5">
+                    <label class="font-sora font-semibold text-gray-700 text-xs">Status</label>
+                    <select id="f-status" class="field px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-dm bg-white transition-all">
+                        <option value="ATIVO">Ativo</option>
+                        <option value="EM_MANUTENCAO">Em Manutenção</option>
+                        <option value="VENCIDO">Vencido</option>
+                        <option value="INATIVO">Inativo</option>
+                    </select>
+                    <p class="text-xs text-gray-400 font-dm mt-0.5">
+                        O status é recalculado automaticamente pelo sistema. Use "Inativo" para desativar manualmente o equipamento.
+                    </p>
+                </div>
+
                 <!-- Nome -->
                 <div class="sm:col-span-2 flex flex-col gap-1.5">
                     <label class="font-sora font-semibold text-gray-700 text-xs">Nome <span class="text-brand-red">*</span></label>

@@ -53,6 +53,14 @@ public abstract class Equipamento {
     @Column(name = "status", nullable = false)
     private StatusEquipamento status = StatusEquipamento.ATIVO;
 
+    /**
+     * Indica que o status foi definido manualmente pelo usuário.
+     * Quando true, o recálculo automático não sobrescreve o status.
+     * Só volta a false se o usuário editar o equipamento sem alterar o status.
+     */
+    @Column(name = "status_manual", nullable = false)
+    private boolean statusManual = false;
+
     public Equipamento() {}
 
     // --- Lógica de negócio ---
@@ -95,22 +103,15 @@ public abstract class Equipamento {
     public Localizacao getLocalizacao() { return localizacao; }
     public void setLocalizacao(Localizacao localizacao) { this.localizacao = localizacao; }
 
-    public LocalDate getDataInstalacao() {
-        return dataInstalacao;
-    }
+    public LocalDate getDataInstalacao() { return dataInstalacao; }
+    public void setDataInstalacao(LocalDate dataInstalacao) { this.dataInstalacao = dataInstalacao; }
 
-    public void setDataInstalacao(LocalDate dataInstalacao) {
-        this.dataInstalacao = dataInstalacao;
-    }
-
-    public LocalDate getDataValidade() {
-        return dataValidade;
-    }
-
-    public void setDataValidade(LocalDate dataValidade) {
-        this.dataValidade = dataValidade;
-    }
+    public LocalDate getDataValidade() { return dataValidade; }
+    public void setDataValidade(LocalDate dataValidade) { this.dataValidade = dataValidade; }
 
     public StatusEquipamento getStatus() { return status; }
     public void setStatus(StatusEquipamento status) { this.status = status; }
+
+    public boolean isStatusManual() { return statusManual; }
+    public void setStatusManual(boolean statusManual) { this.statusManual = statusManual; }
 }
