@@ -98,13 +98,8 @@ public class EquipamentoService {
     }
 
     public Equipamento atualizar(Long id, Equipamento equipamentoAtualizado) {
-        Equipamento equipamento = buscarPorId(id);
-        equipamento.setNome(equipamentoAtualizado.getNome());
-        equipamento.setNumSerie(equipamentoAtualizado.getNumSerie());
-        equipamento.setStatus(equipamentoAtualizado.getStatus());
-        equipamento.setDataValidade(equipamentoAtualizado.getDataValidade());
-        equipamento.setLocalizacao(equipamentoAtualizado.getLocalizacao());
-        return repository.save(equipamento);
+        equipamentoAtualizado.setId(id);
+        return salvar(equipamentoAtualizado);
     }
 
     public void deletar(Long id) { repository.deleteById(id); }
