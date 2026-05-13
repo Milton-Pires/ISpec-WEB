@@ -26,11 +26,10 @@ function estaVencido(dataValidade) {
 // Os KPIs sempre refletem o total geral de equipamentos,
 // independente dos filtros ativos na tabela.
 function updateKpis() {
-    document.getElementById('kpi-total').textContent      = equipamentos.length;
-    document.getElementById('kpi-manutencao').textContent = equipamentos.filter(e => e.status === 'EM_MANUTENCAO').length;
-    document.getElementById('kpi-vencidos').textContent   = equipamentos.filter(e => e.status === 'VENCIDO').length;
+  document.getElementById('kpi-total').textContent      = equipamentos.length;
+  document.getElementById('kpi-manutencao').textContent = equipamentos.filter(e => e.precisaManutencao === true).length;
+  document.getElementById('kpi-vencidos').textContent   = equipamentos.filter(e => e.status === 'VENCIDO').length;
 }
-
 // ── Filtros ──────────────────────────────
 function setFilterTipo(tipo) {
     activeFilterTipo = tipo;
@@ -95,8 +94,8 @@ function renderTable() {
 
     tbody.innerHTML = filtered.map((e, i) => {
         const tipo        = e.tipo || 'Equipamento';
-        const vencido     = estaVencido(e.dataValidade);
-        const statusLabel = vencido ? 'vencido' : e.status?.toLowerCase() || 'ativo';
+        const statusLabel = e.status?.toLowerCase().replace('em_manutencao', 'manutencao') || 'ativo';
+        const vencido = statusLabel === 'vencido';
         const statusText  = statusLabel.charAt(0).toUpperCase() + statusLabel.slice(1).replace('_', ' ');
         const locDesc     = e.localizacao
             ? [e.localizacao.bloco, e.localizacao.andar, e.localizacao.sala].filter(Boolean).join(' / ')
@@ -387,8 +386,8 @@ function openDrawer(id) {
     viewingId = id;
 
     const tipo    = e.tipo || 'Equipamento';
-    const vencido = estaVencido(e.dataValidade);
-    const statusLabel = vencido ? 'vencido' : e.status?.toLowerCase() || 'ativo';
+    const statusLabel = e.status?.toLowerCase().replace('em_manutencao', 'manutencao') || 'ativo';
+    const vencido = statusLabel === 'vencido';
     const locDesc = e.localizacao
         ? [e.localizacao.bloco, e.localizacao.andar, e.localizacao.sala].filter(Boolean).join(' / ')
         : '—';

@@ -1,18 +1,30 @@
 package br.com.ispec.Service;
 
-import java.util.List;
-
+import br.com.ispec.Entities.*;
+import br.com.ispec.Repository.*;
 import org.springframework.stereotype.Service;
-
-import br.com.ispec.Entities.Inspecao;
-import br.com.ispec.Repository.InspecaoRepository;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 
 @Service
 public class InspecaoService {
-    private final InspecaoRepository repository;
 
-    public InspecaoService(InspecaoRepository repository) {
+    private final InspecaoRepository repository;
+    private final EquipamentoRepository equipamentoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final PerguntaInspecaoRepository perguntaRepository;
+    private final ItemInspecaoRepository itemRepository;
+
+    public InspecaoService(InspecaoRepository repository,
+                           EquipamentoRepository equipamentoRepository,
+                           UsuarioRepository usuarioRepository,
+                           PerguntaInspecaoRepository perguntaRepository,
+                           ItemInspecaoRepository itemRepository) {
         this.repository = repository;
+        this.equipamentoRepository = equipamentoRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.perguntaRepository = perguntaRepository;
+        this.itemRepository = itemRepository;
     }
 
     public List<Inspecao> listarTodas() {
@@ -21,18 +33,62 @@ public class InspecaoService {
 
     public Inspecao buscarPorId(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Inspeção não encontrada"));
-    }
-
-    public Inspecao salvar(Inspecao inspecao) {
-        return repository.save(inspecao);
-    }
-
-    public void deletar(Long id) {
-        repository.deleteById(id);
+                .orElseThrow(() -> new RuntimeException("Inspeção não encontrada: " + id));
     }
 
     public List<Inspecao> listarPorEquipamento(Long equipamentoId) {
         return repository.findByEquipamento_Id(equipamentoId);
+    }
+
+    public List<ItemInspecao> listarItensPorInspecao(Long inspecaoId) {
+        Inspecao inspecao = buscarPorId(inspecaoId);
+        return itemRepository.findByInspecao(inspecao);
+    }
+
+    @Transactional
+    public Inspecao salvar(Inspecao inspecao) {
+
+        if (inspecao.getEquipamento() != null && inspecao.getEquipamento().getId() != null) {
+            Equipamento eq = equipamentoRepository.findById(inspecao.getEquipamento().getId())
+                    .orElseThrow(() -> new RuntimeException("Equipamento não encontrado"));
+            inspecao.setEquipamento(eq);
+        }
+
+
+        if (inspecao.getResponsavel() != null && inspecao.getResponsavel().getId() != null) {
+            Usuario usuario = usuarioRepository.findById(inspecao.getResponsavel().getId())
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+            inspecao.setResponsavel(usuario);
+        }
+
+
+        if (inspecao.getItens() != null && !inspecao.getItens().isEmpty()) {
+            boolean aprovado = inspecao.getItens().stream().allMatch(ItemInspecao::isResposta);
+            inspecao.setAprovado(aprovado);
+        }
+
+
+        Inspecao salva = repository.save(inspecao);
+
+
+        if (inspecao.getItens() != null) {
+            for (ItemInspecao item : inspecao.getItens()) {
+                // Resolve pergunta
+                PerguntaInspecao pergunta = perguntaRepository.findById(item.getPergunta().getId())
+                        .orElseThrow(() -> new RuntimeException("Pergunta não encontrada"));
+                item.setPergunta(pergunta);
+                item.setInspecao(salva);
+                itemRepository.save(item);
+            }
+        }
+
+        return salva;
+    }
+
+    @Transactional
+    public void deletar(Long id) {
+        Inspecao inspecao = buscarPorId(id);
+        itemRepository.deleteByInspecao(inspecao);
+        repository.deleteById(id);
     }
 }

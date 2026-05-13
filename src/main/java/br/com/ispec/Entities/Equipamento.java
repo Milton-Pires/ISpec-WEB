@@ -53,11 +53,6 @@ public abstract class Equipamento {
     @Column(name = "status", nullable = false)
     private StatusEquipamento status = StatusEquipamento.ATIVO;
 
-    /**
-     * Indica que o status foi definido manualmente pelo usuário.
-     * Quando true, o recálculo automático não sobrescreve o status.
-     * Só volta a false se o usuário editar o equipamento sem alterar o status.
-     */
     @Column(name = "status_manual", nullable = false)
     private boolean statusManual = false;
 
@@ -114,4 +109,7 @@ public abstract class Equipamento {
 
     public boolean isStatusManual() { return statusManual; }
     public void setStatusManual(boolean statusManual) { this.statusManual = statusManual; }
+    public boolean isPrecisaManutencao() {
+        return precisaManutencao();
+    }
 }

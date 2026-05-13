@@ -3,6 +3,7 @@ package br.com.ispec.Entities;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "inspecao")
@@ -30,6 +31,12 @@ public class Inspecao {
 
     @Column(name = "observacoes", columnDefinition = "TEXT")
     private String observacoes;
+
+    @OneToMany(mappedBy = "inspecao", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<ItemInspecao> itens;
+
+    public List<ItemInspecao> getItens() { return itens; }
+    public void setItens(List<ItemInspecao> itens) { this.itens = itens; }
 
     public Inspecao() {}
 
