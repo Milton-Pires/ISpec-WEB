@@ -16,7 +16,8 @@ public class Inspecao {
 
     @ManyToOne
     @JoinColumn(name = "id_equipamento", nullable = false)
-    @JsonIgnoreProperties({"localizacao", "cliente", "tipoEquipamento"})
+    @JsonIgnoreProperties({"localizacao", "cliente", "tipoEquipamento", "agente",
+            "classesFogo", "tipoSensor", "itens", "precisaManutencao"})
     private Equipamento equipamento;
 
     @ManyToOne
@@ -33,6 +34,7 @@ public class Inspecao {
     private String observacoes;
 
     @OneToMany(mappedBy = "inspecao", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnoreProperties("inspecao")
     private List<ItemInspecao> itens;
 
     public List<ItemInspecao> getItens() { return itens; }
