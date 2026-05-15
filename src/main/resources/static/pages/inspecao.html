@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iSpec – Inspeções</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            red:      '#8B0012',
+                            redmid:   '#C0001A',
+                            redlight: '#E8001E',
+                            rose:     '#F5E6E8',
+                        }
+                    },
+                    fontFamily: {
+                        sora: ['Sora', 'sans-serif'],
+                        dm:   ['DM Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        #sidebar { transition: width .3s ease; }
+        #sidebar.collapsed { width: 4.5rem; }
+        #sidebar.collapsed .sidebar-label,
+        #sidebar.collapsed .sidebar-logo-text,
+        #sidebar.collapsed .sidebar-section-label { opacity: 0; width: 0; overflow: hidden; pointer-events: none; }
+        #sidebar.collapsed .nav-item { justify-content: center; }
+        #sidebar-overlay.show { display: block; }
+        .nav-item.active { background: rgba(255,255,255,.15); color: white !important; }
+        .nav-item:hover  { background: rgba(255,255,255,.1); }
+
+        .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
+            backdrop-filter: blur(4px); z-index: 50; align-items: center; justify-content: center; }
+        .modal-backdrop.open { display: flex; }
+
+        .drawer-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4);
+            backdrop-filter: blur(2px); z-index: 40; }
+        .drawer-backdrop.open { display: block; }
+        .drawer { position: fixed; top: 0; right: -480px; width: 480px; height: 100vh;
+            background: white; z-index: 45; overflow-y: auto;
+            transition: right .3s cubic-bezier(.4,0,.2,1); box-shadow: -8px 0 32px rgba(0,0,0,.12); }
+        .drawer.open { right: 0; }
+        @media (max-width: 520px) { .drawer { width: 100vw; right: -100vw; } }
+
+        .field:focus { outline: none; border-color: #8B0012; box-shadow: 0 0 0 3px rgba(139,0,18,.1); }
+
+        .badge-aprovado  { background: #dcfce7; color: #166534; }
+        .badge-reprovado { background: #fee2e2; color: #991b1b; }
+        .badge-pendente  { background: #fef9c3; color: #854d0e; }
+
+        @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+        .row-anim { opacity: 0; animation: fadeUp .4s ease forwards; }
+
+        /* Etapas do modal */
+        .step { display: none; }
+        .step.active { display: block; }
+
+        .step-indicator.active { background: #8B0012; color: white; }
+        .step-indicator.done   { background: #dcfce7; color: #166534; }
+        .step-indicator        { background: #f3f4f6; color: #9ca3af; }
+
+        /* Checklist item */
+        .checklist-item { transition: all .2s; }
+        .checklist-item:hover { background: #fef2f2; }
+        .answer-btn { transition: all .2s; }
+        .answer-btn.sim  { background: #dcfce7; color: #166534; border-color: #86efac; }
+        .answer-btn.nao  { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+    </style>
+</head>
+<body class="bg-gray-100 flex h-screen overflow-hidden">
+
+<!-- ══════════════ SIDEBAR ══════════════ -->
+<aside id="sidebar" class="w-64 bg-gradient-to-b from-brand-red to-[#5A000D] flex flex-col shrink-0 z-40 shadow-2xl">
+    <div class="flex items-center gap-3 px-5 py-5 border-b border-white/10">
+        <div class="w-9 h-9 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-md">
+            <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="#8B0012" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2l9 4v6c0 5-3.5 9.5-9 11C6.5 21.5 3 17 3 12V6l9-4z"/>
+                <polyline points="9 12 11 14 15 10"/>
+            </svg>
+        </div>
+        <div class="sidebar-logo-text transition-all duration-300 overflow-hidden">
+            <span class="font-sora font-extrabold text-white text-xl tracking-tight leading-none">iSpec</span>
+            <p class="text-white/50 text-xs mt-0.5">Sistema de Inspeção</p>
+        </div>
+    </div>
+
+    <nav class="flex-1 px-3 py-4 overflow-y-auto flex flex-col gap-1">
+        <p class="sidebar-section-label text-white/30 text-[10px] font-sora font-semibold uppercase tracking-widest px-3 mb-2">Menu</p>
+
+        <a href="main.html" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/75 hover:text-white">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+            </svg>
+            <span class="sidebar-label font-dm font-medium text-sm">Painel Principal</span>
+        </a>
+
+        <a href="cliente.html" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/75 hover:text-white">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+            <span class="sidebar-label font-dm font-medium text-sm">Clientes</span>
+        </a>
+
+        <a href="equipamento.html" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/75 hover:text-white">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2l9 4v6c0 5-3.5 9.5-9 11C6.5 21.5 3 17 3 12V6l9-4z"/>
+                <polyline points="9 12 11 14 15 10"/>
+            </svg>
+            <span class="sidebar-label font-dm font-medium text-sm">Equipamentos</span>
+        </a>
+
+        <a href="inspecao.html" class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg text-white">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+            </svg>
+            <span class="sidebar-label font-dm font-medium text-sm">Inspeções</span>
+        </a>
+
+        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/75 hover:text-white">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/>
+            </svg>
+            <span class="sidebar-label font-dm font-medium text-sm">Relatórios</span>
+        </a>
+
+        <p class="sidebar-section-label text-white/30 text-[10px] font-sora font-semibold uppercase tracking-widest px-3 mb-2 mt-4">Configurações</p>
+
+        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/75 hover:text-white">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+            </svg>
+            <span class="sidebar-label font-dm font-medium text-sm">Configurações</span>
+        </a>
+
+        <a href="login.html" onclick="logout()" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/75 hover:text-white">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            <span class="sidebar-label font-dm font-medium text-sm">Sair</span>
+        </a>
+    </nav>
+
+    <div class="flex items-center gap-3 px-4 py-4 border-t border-white/10">
+        <div class="w-9 h-9 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+        </div>
+        <div class="sidebar-logo-text transition-all duration-300 overflow-hidden min-w-0">
+            <p class="font-sora font-semibold text-white text-sm truncate" id="user-nome">Usuário</p>
+            <p class="text-white/40 text-xs truncate" id="user-email">—</p>
+        </div>
+    </div>
+</aside>
+
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 backdrop-blur-sm hidden" onclick="closeSidebar()"></div>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<div class="flex-1 flex flex-col overflow-hidden min-w-0">
+
+    <header class="bg-white border-b border-gray-200 px-6 py-3.5 flex items-center gap-4 shrink-0 shadow-sm">
+        <button onclick="toggleSidebar()" class="w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors shrink-0">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+        </button>
+
+        <div class="hidden md:flex items-center gap-2 text-sm text-gray-400 font-dm">
+            <a href="main.html" class="text-brand-red font-medium hover:underline">iSpec</a>
+            <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            <span class="text-gray-700 font-medium">Inspeções</span>
+        </div>
+
+        <div class="flex-1 max-w-md mx-auto md:mx-0 md:ml-6">
+            <div class="relative">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input id="search" type="text" placeholder="Pesquisar inspeção..."
+                       oninput="renderTable()"
+                       class="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl font-dm transition-all focus:bg-white"/>
+            </div>
+        </div>
+
+        <div class="ml-auto flex items-center gap-2">
+            <div class="w-9 h-9 rounded-full bg-brand-red flex items-center justify-center cursor-pointer shadow-sm">
+                <span class="text-white font-sora font-bold text-sm" id="user-initial">U</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto bg-gray-50 px-6 py-6">
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+                <h1 class="font-sora font-extrabold text-gray-900 text-2xl leading-tight">Inspeções</h1>
+                <p class="text-gray-500 text-sm mt-0.5 font-dm">Registre e acompanhe todas as inspeções de equipamentos.</p>
+            </div>
+            <button onclick="openModal()"
+                    class="flex items-center gap-2 bg-brand-red hover:bg-brand-redmid text-white px-5 py-2.5 rounded-xl font-sora font-semibold text-sm transition-all hover:-translate-y-0.5 hover:shadow-lg shadow-md shrink-0">
+                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Nova Inspeção
+            </button>
+        </div>
+
+        <!-- KPIs -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-3">
+                <div class="w-10 h-10 bg-brand-rose rounded-xl flex items-center justify-center shrink-0">
+                    <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="#8B0012" stroke-width="2" stroke-linecap="round">
+                        <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-sora font-extrabold text-gray-900 text-xl leading-none" id="kpi-total">0</p>
+                    <p class="text-gray-400 text-xs font-dm mt-0.5">Total</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-3">
+                <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center shrink-0">
+                    <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="#166534" stroke-width="2" stroke-linecap="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-sora font-extrabold text-gray-900 text-xl leading-none" id="kpi-aprovadas">0</p>
+                    <p class="text-gray-400 text-xs font-dm mt-0.5">Aprovadas</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-3">
+                <div class="w-10 h-10 bg-red-50 rounded-xl flex items-center justify-center shrink-0">
+                    <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="#991b1b" stroke-width="2" stroke-linecap="round">
+                        <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-sora font-extrabold text-gray-900 text-xl leading-none" id="kpi-reprovadas">0</p>
+                    <p class="text-gray-400 text-xs font-dm mt-0.5">Reprovadas</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex items-center gap-3">
+                <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center shrink-0">
+                    <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="#854d0e" stroke-width="2" stroke-linecap="round">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16" stroke-width="3"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="font-sora font-extrabold text-gray-900 text-xl leading-none" id="kpi-pendentes">0</p>
+                    <p class="text-gray-400 text-xs font-dm mt-0.5">Pendentes</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+            <span class="text-xs font-sora font-semibold text-gray-400 mr-1">Resultado:</span>
+            <button onclick="setFilter('resultado', 'todos')" data-resultado="todos"
+                    class="filter-resultado px-4 py-1.5 rounded-xl text-xs font-sora font-semibold bg-brand-red text-white transition-all">Todos</button>
+            <button onclick="setFilter('resultado', 'aprovado')" data-resultado="aprovado"
+                    class="filter-resultado px-4 py-1.5 rounded-xl text-xs font-sora font-semibold bg-white border border-gray-200 text-gray-600 hover:border-brand-red hover:text-brand-red transition-all">Aprovadas</button>
+            <button onclick="setFilter('resultado', 'reprovado')" data-resultado="reprovado"
+                    class="filter-resultado px-4 py-1.5 rounded-xl text-xs font-sora font-semibold bg-white border border-gray-200 text-gray-600 hover:border-brand-red hover:text-brand-red transition-all">Reprovadas</button>
+            <button onclick="setFilter('resultado', 'pendente')" data-resultado="pendente"
+                    class="filter-resultado px-4 py-1.5 rounded-xl text-xs font-sora font-semibold bg-white border border-gray-200 text-gray-600 hover:border-brand-red hover:text-brand-red transition-all">Pendentes</button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+            <span class="text-xs font-sora font-semibold text-gray-400 mr-1">Tipo:</span>
+            <button onclick="setFilter('tipo', 'todos')" data-tipo="todos"
+                    class="filter-tipo px-4 py-1.5 rounded-xl text-xs font-sora font-semibold bg-brand-red text-white transition-all">Todos</button>
+            <button onclick="setFilter('tipo', 'Extintor')" data-tipo="Extintor"
+                    class="filter-tipo px-4 py-1.5 rounded-xl text-xs font-sora font-semibold bg-white border border-gray-200 text-gray-600 hover:border-brand-red hover:text-brand-red transition-all">Extintor</button>
+            <button onclick="setFilter('tipo', 'Alarme')" data-tipo="Alarme"
+                    class="filter-tipo px-4 py-1.5 rounded-xl text-xs font-sora font-semibold bg-white border border-gray-200 text-gray-600 hover:border-brand-red hover:text-brand-red transition-all">Alarme</button>
+            <button onclick="setFilter('tipo', 'Hidrante')" data-tipo="Hidrante"
+                    class="filter-tipo px-4 py-1.5 rounded-xl text-xs font-sora font-semibold bg-white border border-gray-200 text-gray-600 hover:border-brand-red hover:text-brand-red transition-all">Hidrante</button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 mb-4">
+            <span class="text-xs font-sora font-semibold text-gray-400 mr-1">Cliente:</span>
+            <select id="filter-cliente" onchange="renderTable()"
+                    class="px-3 py-1.5 rounded-xl text-xs font-sora font-semibold bg-white border border-gray-200 text-gray-600 transition-all">
+                <option value="todos">Todos os clientes</option>
+            </select>
+            <input type="date" id="filter-data-inicio" onchange="renderTable()"
+                   class="px-3 py-1.5 rounded-xl text-xs font-dm bg-white border border-gray-200 text-gray-600 transition-all"/>
+            <span class="text-xs text-gray-400">até</span>
+            <input type="date" id="filter-data-fim" onchange="renderTable()"
+                   class="px-3 py-1.5 rounded-xl text-xs font-dm bg-white border border-gray-200 text-gray-600 transition-all"/>
+            <span id="result-count" class="ml-auto text-xs text-gray-400 font-dm"></span>
+        </div>
+
+        <!-- Tabela -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                    <tr class="border-b border-gray-100 bg-gray-50/80">
+                        <th class="text-left px-5 py-3.5 font-sora font-semibold text-gray-500 text-xs uppercase tracking-wide">Equipamento</th>
+                        <th class="text-left px-5 py-3.5 font-sora font-semibold text-gray-500 text-xs uppercase tracking-wide hidden md:table-cell">Cliente</th>
+                        <th class="text-left px-5 py-3.5 font-sora font-semibold text-gray-500 text-xs uppercase tracking-wide hidden lg:table-cell">Responsável</th>
+                        <th class="text-left px-5 py-3.5 font-sora font-semibold text-gray-500 text-xs uppercase tracking-wide hidden lg:table-cell">Data</th>
+                        <th class="text-left px-5 py-3.5 font-sora font-semibold text-gray-500 text-xs uppercase tracking-wide">Resultado</th>
+                        <th class="px-5 py-3.5"></th>
+                    </tr>
+                    </thead>
+                    <tbody id="inspecao-table"></tbody>
+                </table>
+            </div>
+            <div id="empty-state" class="hidden flex-col items-center justify-center py-16 text-center">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                    <svg viewBox="0 0 24 24" class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+                        <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                    </svg>
+                </div>
+                <p class="font-sora font-semibold text-gray-400 text-sm">Nenhuma inspeção encontrada</p>
+                <p class="text-gray-300 text-xs mt-1 font-dm">Tente ajustar os filtros ou registre uma nova inspeção.</p>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+
+<!-- ══════════════ MODAL – NOVA INSPEÇÃO (3 ETAPAS) ══════════════ -->
+<div id="modal" class="modal-backdrop" onclick="handleBackdropClick(event)">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-4 overflow-hidden">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-brand-red to-brand-redmid">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                    <svg viewBox="0 0 24 24" class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                        <path d="M9 11l3 3L22 4"/>
+                    </svg>
+                </div>
+                <h2 class="font-sora font-bold text-white text-base">Nova Inspeção</h2>
+            </div>
+            <button onclick="closeModal()" class="w-8 h-8 bg-white/15 hover:bg-white/30 rounded-lg flex items-center justify-center transition-colors">
+                <svg viewBox="0 0 24 24" class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Indicadores de etapa -->
+        <div class="flex items-center px-6 py-4 border-b border-gray-100 gap-2">
+            <div class="flex items-center gap-2 flex-1">
+                <div id="step-ind-1" class="step-indicator w-7 h-7 rounded-full flex items-center justify-center text-xs font-sora font-bold active">1</div>
+                <span class="text-xs font-dm text-gray-500 hidden sm:block">Equipamento</span>
+            </div>
+            <div class="h-px flex-1 bg-gray-200"></div>
+            <div class="flex items-center gap-2 flex-1 justify-center">
+                <div id="step-ind-2" class="step-indicator w-7 h-7 rounded-full flex items-center justify-center text-xs font-sora font-bold">2</div>
+                <span class="text-xs font-dm text-gray-500 hidden sm:block">Checklist</span>
+            </div>
+            <div class="h-px flex-1 bg-gray-200"></div>
+            <div class="flex items-center gap-2 flex-1 justify-end">
+                <div id="step-ind-3" class="step-indicator w-7 h-7 rounded-full flex items-center justify-center text-xs font-sora font-bold">3</div>
+                <span class="text-xs font-dm text-gray-500 hidden sm:block">Confirmação</span>
+            </div>
+        </div>
+
+        <!-- Corpo das etapas -->
+        <div class="px-6 py-5 max-h-[60vh] overflow-y-auto">
+
+            <!-- ETAPA 1 — Equipamento -->
+            <div id="step-1" class="step active flex flex-col gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label class="font-sora font-semibold text-gray-700 text-xs">Buscar Equipamento <span class="text-brand-red">*</span></label>
+                    <div class="relative">
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                        <input id="search-equip" type="text" placeholder="Nome ou nº de série..."
+                               oninput="filtrarEquipamentos()"
+                               class="field w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm font-dm transition-all"/>
+                    </div>
+                </div>
+                <div id="equip-results" class="flex flex-col gap-2 max-h-48 overflow-y-auto"></div>
+
+                <div id="equip-selecionado" class="hidden bg-brand-rose rounded-xl p-4 flex items-center gap-3">
+                    <div class="w-10 h-10 bg-brand-red rounded-xl flex items-center justify-center shrink-0">
+                        <svg viewBox="0 0 24 24" class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                            <path d="M12 2l9 4v6c0 5-3.5 9.5-9 11C6.5 21.5 3 17 3 12V6l9-4z"/>
+                            <polyline points="9 12 11 14 15 10"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="font-sora font-semibold text-brand-red text-sm" id="sel-nome">—</p>
+                        <p class="text-brand-red/70 text-xs font-dm" id="sel-serie">—</p>
+                    </div>
+                    <button onclick="deselecionarEquip()" class="text-brand-red/50 hover:text-brand-red transition-colors">
+                        <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label class="font-sora font-semibold text-gray-700 text-xs">Data da Inspeção <span class="text-brand-red">*</span></label>
+                    <input id="f-data" type="date" class="field px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-dm transition-all" required/>
+                </div>
+
+                <!-- Responsável alternativo -->
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="chk-outro-responsavel" onchange="toggleOutroResponsavel()"
+                           class="w-4 h-4 rounded border-gray-300 accent-brand-red cursor-pointer"/>
+                    <label for="chk-outro-responsavel" class="text-sm text-gray-600 cursor-pointer font-dm">Registrar em nome de outro usuário</label>
+                </div>
+                <div id="div-outro-responsavel" class="hidden flex flex-col gap-1.5">
+                    <label class="font-sora font-semibold text-gray-700 text-xs">Responsável</label>
+                    <select id="f-responsavel" class="field px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-dm bg-white transition-all">
+                        <option value="">Selecione o responsável</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- ETAPA 2 — Checklist -->
+            <div id="step-2" class="step flex flex-col gap-3">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="font-sora font-semibold text-gray-700 text-sm" id="checklist-titulo">Checklist</p>
+                    <span class="text-xs text-gray-400 font-dm" id="checklist-progresso">0/0 respondidas</span>
+                </div>
+                <div id="checklist-items" class="flex flex-col gap-2"></div>
+            </div>
+
+            <!-- ETAPA 3 — Confirmação -->
+            <div id="step-3" class="step flex flex-col gap-4">
+                <div id="resultado-preview" class="rounded-xl p-4 flex items-center gap-3"></div>
+
+                <div class="bg-gray-50 rounded-xl p-4 flex flex-col gap-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400 font-dm">Equipamento</span>
+                        <span class="font-sora font-semibold text-gray-800" id="conf-equip">—</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400 font-dm">Nº de Série</span>
+                        <span class="font-sora font-semibold text-gray-800" id="conf-serie">—</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400 font-dm">Data</span>
+                        <span class="font-sora font-semibold text-gray-800" id="conf-data">—</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400 font-dm">Responsável</span>
+                        <span class="font-sora font-semibold text-gray-800" id="conf-responsavel">Usuário logado</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400 font-dm">Itens aprovados</span>
+                        <span class="font-sora font-semibold text-gray-800" id="conf-itens">—</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label class="font-sora font-semibold text-gray-700 text-xs">Observações gerais</label>
+                    <textarea id="f-obs" rows="3" placeholder="Observações adicionais sobre a inspeção..."
+                              class="field px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-dm transition-all resize-none"></textarea>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer do modal -->
+        <div class="flex gap-3 px-6 py-4 border-t border-gray-100">
+            <button id="btn-voltar" onclick="voltarEtapa()" class="hidden flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-sora font-semibold text-sm hover:bg-gray-50 transition-all">
+                Voltar
+            </button>
+            <button onclick="closeModal()" id="btn-cancelar" class="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-sora font-semibold text-sm hover:bg-gray-50 transition-all">
+                Cancelar
+            </button>
+            <button id="btn-avancar" onclick="avancarEtapa()"
+                    class="flex-1 py-2.5 rounded-xl bg-brand-red hover:bg-brand-redmid text-white font-sora font-semibold text-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+                Próximo
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<!-- ══════════════ DRAWER – VISUALIZAR INSPEÇÃO ══════════════ -->
+<div id="drawer-backdrop" class="drawer-backdrop" onclick="closeDrawer()"></div>
+<div id="drawer" class="drawer">
+
+    <div class="bg-gradient-to-r from-brand-red to-brand-redmid px-6 py-5 flex items-start justify-between">
+        <div>
+            <p class="font-sora font-bold text-white text-base" id="d-equip">—</p>
+            <p class="text-white/60 text-xs mt-0.5 font-dm" id="d-serie">—</p>
+        </div>
+        <button onclick="closeDrawer()" class="w-8 h-8 bg-white/15 hover:bg-white/30 rounded-lg flex items-center justify-center transition-colors shrink-0">
+            <svg viewBox="0 0 24 24" class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+        </button>
+    </div>
+
+    <div id="d-resultado-banner" class="px-6 py-3 flex items-center gap-2 border-b border-gray-100">
+        <span id="d-resultado-dot" class="w-2 h-2 rounded-full"></span>
+        <span id="d-resultado-text" class="font-sora font-semibold text-xs"></span>
+    </div>
+
+    <div class="px-6 py-5 flex flex-col gap-5">
+        <div>
+            <p class="font-sora font-semibold text-gray-400 text-xs uppercase tracking-wide mb-3">Informações</p>
+            <div class="flex flex-col gap-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400 text-xs font-dm">Cliente</span>
+                    <span class="font-sora font-semibold text-gray-800 text-sm" id="d-cliente">—</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400 text-xs font-dm">Responsável</span>
+                    <span class="font-sora font-semibold text-gray-800 text-sm" id="d-responsavel">—</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400 text-xs font-dm">Data</span>
+                    <span class="font-sora font-semibold text-gray-800 text-sm" id="d-data">—</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-400 text-xs font-dm">Tipo</span>
+                    <span class="font-sora font-semibold text-gray-800 text-sm" id="d-tipo">—</span>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <p class="font-sora font-semibold text-gray-400 text-xs uppercase tracking-wide mb-3">Checklist</p>
+            <div id="d-checklist" class="flex flex-col gap-2"></div>
+        </div>
+
+        <div id="d-obs-wrap">
+            <p class="font-sora font-semibold text-gray-400 text-xs uppercase tracking-wide mb-2">Observações</p>
+            <p class="text-gray-600 text-sm font-dm leading-relaxed bg-gray-50 rounded-xl px-4 py-3" id="d-obs">—</p>
+        </div>
+
+        <div class="flex gap-3 pt-2 border-t border-gray-100">
+            <button onclick="deleteFromDrawer()"
+                    class="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 font-sora font-semibold text-sm hover:bg-red-100 transition-all">
+                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+                    <path d="M10 11v6"/><path d="M14 11v6"/>
+                </svg>
+                Excluir
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="../js/app.js"></script>
+<script src="../js/inspecao.js"></script>
+</body>
+</html>

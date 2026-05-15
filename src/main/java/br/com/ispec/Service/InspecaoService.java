@@ -1,5 +1,6 @@
 package br.com.ispec.Service;
 
+import br.com.ispec.DTO.InspecaoDTO;
 import br.com.ispec.Entities.*;
 import br.com.ispec.Repository.*;
 import org.springframework.stereotype.Service;
@@ -46,7 +47,16 @@ public class InspecaoService {
     }
 
     @Transactional
-    public Inspecao salvar(Inspecao inspecao) {
+    public Inspecao salvar(Inspecao inspecao, String emailResponsavel) {
+        if (inspecao.getResponsavel() == null || inspecao.getResponsavel().getId() == null) {
+            Usuario usuario = usuarioRepository.findByEmail(emailResponsavel)
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+            inspecao.setResponsavel(usuario);
+        } else {
+            Usuario usuario = usuarioRepository.findById(inspecao.getResponsavel().getId())
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+            inspecao.setResponsavel(usuario);
+        }
 
         if (inspecao.getEquipamento() != null && inspecao.getEquipamento().getId() != null) {
             Equipamento eq = equipamentoRepository.findById(inspecao.getEquipamento().getId())
@@ -54,29 +64,66 @@ public class InspecaoService {
             inspecao.setEquipamento(eq);
         }
 
-
-        if (inspecao.getResponsavel() != null && inspecao.getResponsavel().getId() != null) {
-            Usuario usuario = usuarioRepository.findById(inspecao.getResponsavel().getId())
-                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-            inspecao.setResponsavel(usuario);
-        }
-
-
         if (inspecao.getItens() != null && !inspecao.getItens().isEmpty()) {
             boolean aprovado = inspecao.getItens().stream().allMatch(ItemInspecao::isResposta);
             inspecao.setAprovado(aprovado);
         }
 
-
         Inspecao salva = repository.save(inspecao);
-
 
         if (inspecao.getItens() != null) {
             for (ItemInspecao item : inspecao.getItens()) {
-                // Resolve pergunta
                 PerguntaInspecao pergunta = perguntaRepository.findById(item.getPergunta().getId())
                         .orElseThrow(() -> new RuntimeException("Pergunta não encontrada"));
                 item.setPergunta(pergunta);
+                item.setInspecao(salva);
+                itemRepository.save(item);
+            }
+        }
+
+        return salva;
+    }
+
+    @Transactional
+    public Inspecao salvarDTO(InspecaoDTO dto, String emailResponsavel) {
+        Inspecao inspecao = new Inspecao();
+
+        // Resolve equipamento
+        Equipamento eq = equipamentoRepository.findById(dto.getEquipamentoId())
+                .orElseThrow(() -> new RuntimeException("Equipamento não encontrado"));
+        inspecao.setEquipamento(eq);
+
+        // Resolve responsável
+        if (dto.getResponsavelId() != null) {
+            Usuario usuario = usuarioRepository.findById(dto.getResponsavelId())
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+            inspecao.setResponsavel(usuario);
+        } else {
+            Usuario usuario = usuarioRepository.findByEmail(emailResponsavel)
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+            inspecao.setResponsavel(usuario);
+        }
+
+        inspecao.setDataInspecao(dto.getDataInspecao());
+        inspecao.setObservacoes(dto.getObservacoes());
+
+        // Calcula aprovado
+        if (dto.getItens() != null && !dto.getItens().isEmpty()) {
+            boolean aprovado = dto.getItens().stream().allMatch(InspecaoDTO.ItemDTO::isResposta);
+            inspecao.setAprovado(aprovado);
+        }
+
+        // Salva inspeção
+        Inspecao salva = repository.save(inspecao);
+
+        // Salva itens
+        if (dto.getItens() != null) {
+            for (InspecaoDTO.ItemDTO itemDTO : dto.getItens()) {
+                PerguntaInspecao pergunta = perguntaRepository.findById(itemDTO.getPerguntaId())
+                        .orElseThrow(() -> new RuntimeException("Pergunta não encontrada"));
+                ItemInspecao item = new ItemInspecao();
+                item.setPergunta(pergunta);
+                item.setResposta(itemDTO.isResposta());
                 item.setInspecao(salva);
                 itemRepository.save(item);
             }

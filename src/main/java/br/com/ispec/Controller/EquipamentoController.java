@@ -52,10 +52,7 @@ public class EquipamentoController {
         service.deletar(id);
     }
 
-    /**
-     * Atualiza apenas o status do equipamento manualmente.
-     * Exemplo: PATCH /equipamentos/5/status?status=INATIVO
-     */
+
     @PatchMapping("/{id}/status")
     public Equipamento atualizarStatus(@PathVariable Long id,
                                        @RequestParam StatusEquipamento status) {
