@@ -170,7 +170,10 @@ function attachTableActions() {
     });
 
     document.querySelectorAll('.insp-row').forEach(row => {
-        row.onclick = () => openDrawer(parseInt(row.dataset.inspId, 10));
+        row.onclick = (e) => {
+            e.stopPropagation();
+            openDrawer(parseInt(row.dataset.inspId, 10));
+        };
     });
 }
 
@@ -415,22 +418,21 @@ function preencherConfirmacao() {
 
 // ── Salvar inspeção ──────────────────────
 async function salvarInspecao() {
+    const itens = perguntas.map(p => ({
+        pergunta: { id: p.id },
+        resposta: respostas[p.id] === true
+    }));
+
     const outroResp = document.getElementById('chk-outro-responsavel').checked;
     const respId    = document.getElementById('f-responsavel').value;
 
     const body = {
-        equipamentoId: equipSelecionado.id,
+        equipamento:   { id: equipSelecionado.id },
         dataInspecao:  document.getElementById('f-data').value,
         observacoes:   document.getElementById('f-obs').value.trim(),
-        itens: perguntas.map(p => ({
-            perguntaId: p.id,
-            resposta:   respostas[p.id] === true
-        }))
+        itens,
+        ...(outroResp && respId ? { responsavel: { id: parseInt(respId) } } : {})
     };
-
-    if (outroResp && respId) {
-        body.responsavelId = parseInt(respId);
-    }
 
     const response = await apiFetch('/inspecoes', {
         method: 'POST',

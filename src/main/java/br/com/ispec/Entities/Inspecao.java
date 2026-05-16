@@ -16,7 +16,7 @@ public class Inspecao {
 
     @ManyToOne
     @JoinColumn(name = "id_equipamento", nullable = false)
-    @JsonIgnoreProperties({"localizacao", "cliente", "tipoEquipamento", "agente",
+    @JsonIgnoreProperties({"localizacao", "tipoEquipamento", "agente",
             "classesFogo", "tipoSensor", "itens", "precisaManutencao"})
     private Equipamento equipamento;
 
