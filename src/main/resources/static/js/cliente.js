@@ -33,17 +33,17 @@ function renderTable() {
   const filtered = clients.filter(c => {
     const matchFilter = activeFilter === 'todos' || c.status === activeFilter;
     const matchSearch = !q
-      || c.razaoSocial?.toLowerCase().includes(q)
-      || c.cnpj?.includes(q)
-      || c.cidade?.toLowerCase().includes(q)
-      || c.responsavel?.toLowerCase().includes(q);
+        || c.razaoSocial?.toLowerCase().includes(q)
+        || c.cnpj?.includes(q)
+        || c.cidade?.toLowerCase().includes(q)
+        || c.responsavel?.toLowerCase().includes(q);
     return matchFilter && matchSearch;
   });
 
   const resultCount = document.getElementById('result-count');
   resultCount.textContent = filtered.length === clients.length
-    ? `${clients.length} clientes`
-    : `${filtered.length} de ${clients.length}`;
+      ? `${clients.length} clientes`
+      : `${filtered.length} de ${clients.length}`;
 
   if (!filtered.length) {
     tbody.innerHTML = '';
@@ -84,6 +84,9 @@ function renderTable() {
         <span class="px-2.5 py-1 rounded-full text-[11px] font-sora font-semibold badge-${c.status}">
           ${c.status?.charAt(0).toUpperCase() + c.status?.slice(1)}
         </span>
+      </td>
+      <td class="px-5 py-4 hidden sm:table-cell">
+        <span class="text-gray-600 text-sm font-dm">${c.totalEquipamentos ?? '—'}</span>
       </td>
       <td class="px-5 py-4">
         <div class="flex items-center gap-1">
@@ -194,8 +197,8 @@ async function saveClient(e) {
   };
 
   const response = editId
-    ? await apiFetch(`/clientes/${editId}`, { method: 'PUT', body: JSON.stringify(data) })
-    : await apiFetch('/clientes', { method: 'POST', body: JSON.stringify(data) });
+      ? await apiFetch(`/clientes/${editId}`, { method: 'PUT', body: JSON.stringify(data) })
+      : await apiFetch('/clientes', { method: 'POST', body: JSON.stringify(data) });
 
   if (!response) return;
 
@@ -277,28 +280,40 @@ async function carregarClientes() {
 
 let sidebar, overlay, isMobile;
 
-document.addEventListener('DOMContentLoaded', () => {
-    sidebar  = document.getElementById('sidebar');
-    overlay  = document.getElementById('sidebar-overlay');
-    isMobile = window.innerWidth < 1024;
+function toggleSidebar() {
+  if (isMobile) {
+    sidebar.classList.toggle('mobile-open');
+    overlay.classList.toggle('show');
+  } else {
+    sidebar.classList.toggle('collapsed');
+  }
+}
 
-    window.addEventListener('resize', () => {
-        isMobile = window.innerWidth < 1024;
-        if (!isMobile) {
-            overlay.classList.remove('show');
-            sidebar.classList.remove('mobile-open');
-        }
-    });
-});
-
+function closeSidebar() {
+  sidebar.classList.remove('mobile-open');
+  overlay.classList.remove('show');
+}
 
 // ── Inicialização ────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    const dateEl = document.getElementById('topbar-date');
-    if (dateEl) {
-        dateEl.textContent = new Date().toLocaleDateString('pt-BR', {
-            weekday: 'short', day: 'numeric', month: 'short'
-        });
+  sidebar  = document.getElementById('sidebar');
+  overlay  = document.getElementById('sidebar-overlay');
+  isMobile = window.innerWidth < 1024;
+
+  window.addEventListener('resize', () => {
+    isMobile = window.innerWidth < 1024;
+    if (!isMobile) {
+      overlay?.classList.remove('show');
+      sidebar?.classList.remove('mobile-open');
     }
-    carregarClientes();
+  });
+
+  const dateEl = document.getElementById('topbar-date');
+  if (dateEl) {
+    dateEl.textContent = new Date().toLocaleDateString('pt-BR', {
+      weekday: 'short', day: 'numeric', month: 'short'
+    });
+  }
+  carregarClientes();
 });
+

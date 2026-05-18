@@ -4,10 +4,11 @@
 
 verificarAutenticacao();
 
-let equipamentos = [];
-let clientes     = [];
+let equipamentos      = [];
+let clientes          = [];
 let activeFilterTipo   = 'todos';
 let activeFilterStatus = 'todos';
+let activeFilterCliente = 'todos'; // ID do cliente selecionado ou 'todos'
 let viewingId = null;
 
 // ── Formatação de data ───────────────────
@@ -23,43 +24,186 @@ function estaVencido(dataValidade) {
 }
 
 // ── KPIs ────────────────────────────────
-// Os KPIs sempre refletem o total geral de equipamentos,
-// independente dos filtros ativos na tabela.
+// Sempre refletem o total geral, independente dos filtros.
 function updateKpis() {
-  document.getElementById('kpi-total').textContent      = equipamentos.length;
-  document.getElementById('kpi-manutencao').textContent = equipamentos.filter(e => e.precisaManutencao === true).length;
-  document.getElementById('kpi-vencidos').textContent   = equipamentos.filter(e => e.status === 'VENCIDO').length;
+    document.getElementById('kpi-total').textContent      = equipamentos.length;
+    document.getElementById('kpi-manutencao').textContent = equipamentos.filter(e => e.precisaManutencao === true).length;
+    document.getElementById('kpi-vencidos').textContent   = equipamentos.filter(e => e.status === 'VENCIDO').length;
 }
-// ── Filtros ──────────────────────────────
+
+// ── Filtro por Tipo ──────────────────────
 function setFilterTipo(tipo) {
     activeFilterTipo = tipo;
     document.querySelectorAll('.filter-tipo').forEach(btn => {
         const isActive = btn.dataset.tipo === tipo;
-        btn.classList.toggle('bg-brand-red', isActive);
-        btn.classList.toggle('text-white', isActive);
-        btn.classList.toggle('bg-white', !isActive);
-        btn.classList.toggle('border', !isActive);
+        btn.classList.toggle('bg-brand-red',     isActive);
+        btn.classList.toggle('text-white',       isActive);
+        btn.classList.toggle('bg-white',        !isActive);
+        btn.classList.toggle('border',          !isActive);
         btn.classList.toggle('border-gray-200', !isActive);
-        btn.classList.toggle('text-gray-600', !isActive);
+        btn.classList.toggle('text-gray-600',   !isActive);
     });
     renderTable();
 }
 
+// ── Filtro por Status ────────────────────
 function setFilterStatus(status) {
     activeFilterStatus = status;
     document.querySelectorAll('.filter-status').forEach(btn => {
         const isActive = btn.dataset.status === status;
-        btn.classList.toggle('bg-brand-red', isActive);
-        btn.classList.toggle('text-white', isActive);
-        btn.classList.toggle('bg-white', !isActive);
-        btn.classList.toggle('border', !isActive);
+        btn.classList.toggle('bg-brand-red',     isActive);
+        btn.classList.toggle('text-white',       isActive);
+        btn.classList.toggle('bg-white',        !isActive);
+        btn.classList.toggle('border',          !isActive);
         btn.classList.toggle('border-gray-200', !isActive);
-        btn.classList.toggle('text-gray-600', !isActive);
+        btn.classList.toggle('text-gray-600',   !isActive);
     });
     renderTable();
 }
 
-// ── Tabela ──────────────────────────────
+// ── Filtro por Cliente ───────────────────
+// Suporta 3 modos:
+//   1. Busca por texto (ID ou nome) — input #filter-cliente-search
+//   2. Seleção por lista dropdown   — select #filter-cliente-select
+//   3. Limpar filtro                — botão  #filter-cliente-clear
+
+function setFilterCliente(clienteId) {
+    activeFilterCliente = clienteId || 'todos';
+    atualizarBadgeCliente();
+    renderTable();
+}
+
+function atualizarBadgeCliente() {
+    const badge = document.getElementById('filter-cliente-badge');
+    if (!badge) return;
+    if (activeFilterCliente === 'todos') {
+        badge.textContent = '';
+        badge.classList.add('hidden');
+    } else {
+        const c = clientes.find(x => String(x.id) === String(activeFilterCliente));
+        badge.textContent = c ? c.razaoSocial : `ID ${activeFilterCliente}`;
+        badge.classList.remove('hidden');
+    }
+}
+
+function limparFiltroCliente() {
+    activeFilterCliente = 'todos';
+    const searchInput = document.getElementById('filter-cliente-search');
+    const selectEl    = document.getElementById('filter-cliente-select');
+    if (searchInput) searchInput.value = '';
+    if (selectEl)    selectEl.value    = 'todos';
+    atualizarBadgeCliente();
+    fecharDropdownCliente();
+    renderTable();
+}
+
+// Busca por texto: filtra a lista do dropdown em tempo real
+function filtrarListaClientes() {
+    const q    = (document.getElementById('filter-cliente-search')?.value || '').toLowerCase().trim();
+    const list = document.getElementById('filter-cliente-list');
+    if (!list) return;
+
+    const filtrados = q
+        ? clientes.filter(c =>
+            c.razaoSocial?.toLowerCase().includes(q) ||
+            String(c.id).includes(q) ||
+            c.cnpj?.includes(q)
+        )
+        : clientes;
+
+    renderListaClientes(filtrados);
+}
+
+function renderListaClientes(lista) {
+    const list = document.getElementById('filter-cliente-list');
+    if (!list) return;
+
+    if (!lista.length) {
+        list.innerHTML = '<li class="px-4 py-3 text-sm text-gray-400 font-dm text-center">Nenhum cliente encontrado</li>';
+        return;
+    }
+
+    list.innerHTML = lista.map(c => {
+        const isActive = String(c.id) === String(activeFilterCliente);
+        return `
+        <li>
+          <button type="button"
+                  onclick="selecionarClienteFiltro(${c.id})"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-gray-50 transition-colors
+                         ${isActive ? 'bg-brand-rose' : ''}">
+            <div class="w-7 h-7 rounded-lg bg-brand-rose flex items-center justify-center shrink-0 text-xs font-sora font-bold text-brand-red">
+              ${c.razaoSocial?.charAt(0).toUpperCase()}
+            </div>
+            <div class="min-w-0">
+              <p class="text-sm font-dm text-gray-800 truncate">${c.razaoSocial}</p>
+              <p class="text-xs text-gray-400 font-dm">ID ${c.id}${c.cnpj ? ' · ' + c.cnpj : ''}</p>
+            </div>
+            ${isActive ? '<svg viewBox="0 0 24 24" class="w-4 h-4 text-brand-red ml-auto shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+          </button>
+        </li>`;
+    }).join('');
+}
+
+function selecionarClienteFiltro(clienteId) {
+    const selectEl = document.getElementById('filter-cliente-select');
+    if (selectEl) selectEl.value = String(clienteId);
+    setFilterCliente(clienteId);
+    fecharDropdownCliente();
+
+    // Atualiza o input de busca com o nome do cliente selecionado
+    const c = clientes.find(x => x.id === clienteId);
+    const searchInput = document.getElementById('filter-cliente-search');
+    if (searchInput && c) searchInput.value = c.razaoSocial;
+}
+
+function abrirDropdownCliente() {
+    const dropdown = document.getElementById('filter-cliente-dropdown');
+    if (!dropdown) return;
+    dropdown.classList.remove('hidden');
+    renderListaClientes(clientes);
+    document.getElementById('filter-cliente-search')?.focus();
+}
+
+function fecharDropdownCliente() {
+    document.getElementById('filter-cliente-dropdown')?.classList.add('hidden');
+}
+
+// Fecha dropdown ao clicar fora do wrapper
+document.addEventListener('click', (e) => {
+    const wrapper = document.getElementById('filter-cliente-wrapper');
+    if (wrapper && !wrapper.contains(e.target)) {
+        fecharDropdownCliente();
+    }
+});
+
+// Seleção direta pelo <select> (modo lista)
+function onSelectCliente() {
+    const val = document.getElementById('filter-cliente-select')?.value;
+    if (!val || val === 'todos') {
+        limparFiltroCliente();
+    } else {
+        setFilterCliente(val);
+        // Sincroniza o input de busca com o nome selecionado
+        const c = clientes.find(x => String(x.id) === val);
+        const searchInput = document.getElementById('filter-cliente-search');
+        if (searchInput && c) searchInput.value = c.razaoSocial;
+    }
+}
+
+// Popula o <select> de clientes para o modo lista
+function popularSelectClientes() {
+    const select = document.getElementById('filter-cliente-select');
+    if (!select) return;
+    select.innerHTML = '<option value="todos">Todos os clientes</option>';
+    clientes.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value       = c.id;
+        opt.textContent = `${c.razaoSocial}${c.cnpj ? ' — ' + c.cnpj : ''}`;
+        select.appendChild(opt);
+    });
+}
+
+// ── Tabela ───────────────────────────────
 function renderTable() {
     const q      = document.getElementById('search').value.toLowerCase();
     const tbody  = document.getElementById('equip-table');
@@ -67,13 +211,17 @@ function renderTable() {
 
     const filtered = equipamentos.filter(e => {
         const tipo = e.tipo || e.tipoEquipamentoNome || '';
-        const matchTipo   = activeFilterTipo === 'todos' || tipo === activeFilterTipo;
-        const matchStatus = activeFilterStatus === 'todos' || e.status === activeFilterStatus;
-        const matchSearch = !q
+
+        const matchTipo    = activeFilterTipo === 'todos' || tipo === activeFilterTipo;
+        const matchStatus  = activeFilterStatus === 'todos' || e.status === activeFilterStatus;
+        const matchCliente = activeFilterCliente === 'todos'
+            || String(e.cliente?.id) === String(activeFilterCliente);
+        const matchSearch  = !q
             || e.nome?.toLowerCase().includes(q)
             || e.numSerie?.toLowerCase().includes(q)
             || e.cliente?.razaoSocial?.toLowerCase().includes(q);
-        return matchTipo && matchStatus && matchSearch;
+
+        return matchTipo && matchStatus && matchCliente && matchSearch;
     });
 
     const resultCount = document.getElementById('result-count');
@@ -85,7 +233,7 @@ function renderTable() {
         tbody.innerHTML = '';
         empty.classList.remove('hidden');
         empty.classList.add('flex');
-        updateKpis(); // atualiza mesmo quando a tabela está vazia por filtro
+        updateKpis();
         return;
     }
 
@@ -95,7 +243,7 @@ function renderTable() {
     tbody.innerHTML = filtered.map((e, i) => {
         const tipo        = e.tipo || 'Equipamento';
         const statusLabel = e.status?.toLowerCase().replace('em_manutencao', 'manutencao') || 'ativo';
-        const vencido = statusLabel === 'vencido';
+        const vencido     = statusLabel === 'vencido';
         const statusText  = statusLabel.charAt(0).toUpperCase() + statusLabel.slice(1).replace('_', ' ');
         const locDesc     = e.localizacao
             ? [e.localizacao.bloco, e.localizacao.andar, e.localizacao.sala].filter(Boolean).join(' / ')
@@ -185,10 +333,7 @@ function openModal() {
     document.getElementById('equip-form').reset();
     document.getElementById('edit-id').value = '';
     ocultarCamposEspecificos();
-
-    // Esconde o campo de status — não faz sentido na criação
     document.getElementById('campo-status').classList.add('hidden');
-
     carregarClientesSelect();
     document.getElementById('modal').classList.add('open');
 }
@@ -197,14 +342,13 @@ function openModalEdit(id) {
     const e = equipamentos.find(x => x.id === id);
     if (!e) return;
 
-    document.getElementById('modal-title').textContent = 'Editar Equipamento';
-    document.getElementById('edit-id').value           = e.id;
-    document.getElementById('f-nome').value            = e.nome        || '';
-    document.getElementById('f-num-serie').value       = e.numSerie    || '';
-    document.getElementById('f-dt-instalacao').value   = e.dataInstalacao || '';
-    document.getElementById('f-dt-validade').value     = e.dataValidade   || '';
+    document.getElementById('modal-title').textContent  = 'Editar Equipamento';
+    document.getElementById('edit-id').value            = e.id;
+    document.getElementById('f-nome').value             = e.nome           || '';
+    document.getElementById('f-num-serie').value        = e.numSerie       || '';
+    document.getElementById('f-dt-instalacao').value    = e.dataInstalacao || '';
+    document.getElementById('f-dt-validade').value      = e.dataValidade   || '';
 
-    // Exibe e preenche o campo de status na edição
     document.getElementById('campo-status').classList.remove('hidden');
     document.getElementById('f-status').value = e.status || 'ATIVO';
 
@@ -256,26 +400,30 @@ function ocultarCamposEspecificos() {
     document.getElementById('campos-hidrante').classList.add('hidden');
 }
 
-// ── Selects dinâmicos ────────────────────
+// ── Selects dinâmicos (modal) ────────────
 async function carregarClientesSelect() {
     const res = await apiFetch('/clientes');
     if (!res) return;
     clientes = await res.json();
+
     const select = document.getElementById('f-cliente');
     select.innerHTML = '<option value="">Selecione o cliente</option>';
     clientes.forEach(c => {
         select.innerHTML += `<option value="${c.id}">${c.razaoSocial} — ${c.cnpj || ''}</option>`;
     });
     select.onchange = () => carregarLocalizacoesSelect(select.value);
+
+    // Também atualiza o painel de filtro por cliente
+    popularSelectClientes();
 }
 
 async function carregarLocalizacoesSelect(clienteId) {
     const select = document.getElementById('f-localizacao');
     select.innerHTML = '<option value="">Selecione a localização</option>';
     if (!clienteId) return;
-    const res = await apiFetch(`/localizacoes`);
+    const res = await apiFetch('/localizacoes');
     if (!res) return;
-    const todas = await res.json();
+    const todas     = await res.json();
     const filtradas = todas.filter(l => l.cliente?.id == clienteId);
     if (!filtradas.length) {
         select.innerHTML = '<option value="">Nenhuma localização cadastrada</option>';
@@ -287,10 +435,10 @@ async function carregarLocalizacoesSelect(clienteId) {
     });
 }
 
-async function carregarTiposEquipSelect(filtro) {
+async function carregarTiposEquipSelect() {
     const res = await apiFetch('/tipos-equipamento');
     if (!res) return;
-    const tipos = await res.json();
+    const tipos  = await res.json();
     const select = document.getElementById('f-tipo-equip');
     select.innerHTML = '<option value="">Selecione o tipo</option>';
     tipos.forEach(t => {
@@ -302,7 +450,7 @@ async function carregarAgentesSelect() {
     const res = await apiFetch('/agentes-extintor');
     if (!res) return;
     const agentes = await res.json();
-    const select = document.getElementById('f-agente');
+    const select  = document.getElementById('f-agente');
     select.innerHTML = '<option value="">Selecione o agente</option>';
     agentes.forEach(a => {
         select.innerHTML += `<option value="${a.id}">${a.descAgente}</option>`;
@@ -313,7 +461,7 @@ async function carregarSensoresSelect() {
     const res = await apiFetch('/tipos-sensor');
     if (!res) return;
     const sensores = await res.json();
-    const select = document.getElementById('f-sensor');
+    const select   = document.getElementById('f-sensor');
     select.innerHTML = '<option value="">Selecione o sensor</option>';
     sensores.forEach(s => {
         select.innerHTML += `<option value="${s.id}">${s.descSensor}</option>`;
@@ -345,19 +493,18 @@ async function saveEquipamento(ev) {
         const agenteId  = document.getElementById('f-agente').value;
         if (agenteId) data.agente = { id: parseInt(agenteId) };
     } else if (tipo === 'Alarme') {
-        data.funcionando        = document.getElementById('f-funcionando').checked;
-        data.ultimaVerificacao  = document.getElementById('f-ultima-verificacao').value || null;
-        const sensorId          = document.getElementById('f-sensor').value;
+        data.funcionando       = document.getElementById('f-funcionando').checked;
+        data.ultimaVerificacao = document.getElementById('f-ultima-verificacao').value || null;
+        const sensorId         = document.getElementById('f-sensor').value;
         if (sensorId) data.tipoSensor = { id: parseInt(sensorId) };
     } else if (tipo === 'Hidrante') {
         data.pressaoAgua          = parseFloat(document.getElementById('f-pressao-agua').value)          || null;
         data.comprimentoMangueira = parseFloat(document.getElementById('f-comprimento-mangueira').value) || null;
     }
 
-    // Salva os dados do equipamento (POST ou PUT)
     const response = editId
         ? await apiFetch(`/equipamentos/${editId}`, { method: 'PUT', body: JSON.stringify(data) })
-        : await apiFetch('/equipamentos', { method: 'POST', body: JSON.stringify(data) });
+        : await apiFetch('/equipamentos',            { method: 'POST', body: JSON.stringify(data) });
 
     if (!response) return;
 
@@ -367,9 +514,6 @@ async function saveEquipamento(ev) {
         return;
     }
 
-    // Se for edição, envia a mudança de status separadamente via PATCH
-    // O backend recalcula o status automaticamente no GET, mas aqui
-    // respeitamos a escolha manual do usuário
     if (editId) {
         const status = document.getElementById('f-status').value;
         await apiFetch(`/equipamentos/${editId}/status?status=${status}`, { method: 'PATCH' });
@@ -385,10 +529,9 @@ function openDrawer(id) {
     if (!e) return;
     viewingId = id;
 
-    const tipo    = e.tipo || 'Equipamento';
+    const tipo        = e.tipo || 'Equipamento';
     const statusLabel = e.status?.toLowerCase().replace('em_manutencao', 'manutencao') || 'ativo';
-    const vencido = statusLabel === 'vencido';
-    const locDesc = e.localizacao
+    const locDesc     = e.localizacao
         ? [e.localizacao.bloco, e.localizacao.andar, e.localizacao.sala].filter(Boolean).join(' / ')
         : '—';
 
@@ -401,15 +544,15 @@ function openDrawer(id) {
     document.getElementById('d-dt-validade').textContent   = formatarData(e.dataValidade);
 
     const statusMap = {
-        ativo:         { dot: 'bg-green-500', text: 'Ativo',           bg: 'bg-green-50 text-green-700' },
-        inativo:       { dot: 'bg-gray-400',  text: 'Inativo',         bg: 'bg-gray-50 text-gray-700' },
-        vencido:       { dot: 'bg-red-500',   text: 'Vencido',         bg: 'bg-red-50 text-red-700' },
-        em_manutencao: { dot: 'bg-yellow-500',text: 'Em Manutenção',   bg: 'bg-yellow-50 text-yellow-700' },
+        ativo:         { dot: 'bg-green-500',  text: 'Ativo',         bg: 'bg-green-50 text-green-700'   },
+        inativo:       { dot: 'bg-gray-400',   text: 'Inativo',       bg: 'bg-gray-50 text-gray-700'     },
+        vencido:       { dot: 'bg-red-500',    text: 'Vencido',       bg: 'bg-red-50 text-red-700'       },
+        em_manutencao: { dot: 'bg-yellow-500', text: 'Em Manutenção', bg: 'bg-yellow-50 text-yellow-700' },
     };
-    const s = statusMap[statusLabel] || statusMap.ativo;
+    const s      = statusMap[statusLabel] || statusMap.ativo;
     const banner = document.getElementById('d-status-banner');
     banner.className = `px-6 py-3 flex items-center gap-2 border-b border-gray-100 ${s.bg}`;
-    document.getElementById('d-status-dot').className   = `w-2 h-2 rounded-full ${s.dot}`;
+    document.getElementById('d-status-dot').className    = `w-2 h-2 rounded-full ${s.dot}`;
     document.getElementById('d-status-text').textContent = s.text;
 
     document.getElementById('drawer-backdrop').classList.add('open');
@@ -451,29 +594,6 @@ async function carregarEquipamentos() {
 // ── Sidebar ──────────────────────────────
 let sidebar, overlay, isMobile;
 
-document.addEventListener('DOMContentLoaded', () => {
-    sidebar  = document.getElementById('sidebar');
-    overlay  = document.getElementById('sidebar-overlay');
-    isMobile = window.innerWidth < 1024;
-
-    const dateEl = document.getElementById('topbar-date');
-    if (dateEl) {
-        dateEl.textContent = new Date().toLocaleDateString('pt-BR', {
-            weekday: 'short', day: 'numeric', month: 'short'
-        });
-    }
-
-    window.addEventListener('resize', () => {
-        isMobile = window.innerWidth < 1024;
-        if (!isMobile) {
-            overlay?.classList.remove('show');
-            sidebar?.classList.remove('mobile-open');
-        }
-    });
-
-    carregarEquipamentos();
-});
-
 function toggleSidebar() {
     if (isMobile) {
         sidebar.classList.toggle('mobile-open');
@@ -487,3 +607,27 @@ function closeSidebar() {
     sidebar.classList.remove('mobile-open');
     overlay.classList.remove('show');
 }
+
+// ── Inicialização ────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    sidebar  = document.getElementById('sidebar');
+    overlay  = document.getElementById('sidebar-overlay');
+    isMobile = window.innerWidth < 1024;
+
+    window.addEventListener('resize', () => {
+        isMobile = window.innerWidth < 1024;
+        if (!isMobile) {
+            overlay?.classList.remove('show');
+            sidebar?.classList.remove('mobile-open');
+        }
+    });
+
+    const dateEl = document.getElementById('topbar-date');
+    if (dateEl) {
+        dateEl.textContent = new Date().toLocaleDateString('pt-BR', {
+            weekday: 'short', day: 'numeric', month: 'short'
+        });
+    }
+
+    carregarEquipamentos();
+});
