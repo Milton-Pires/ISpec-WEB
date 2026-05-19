@@ -17,14 +17,6 @@ public class Usuario {
     @Column(name = "senha", nullable = false, length = 255)
     private String senha;
 
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
-
     @Column(name = "nome", nullable = false, length = 100)
     private String nome;
 
@@ -87,6 +79,14 @@ public class Usuario {
 
     public void setTipo(TipoUsuario tipo) {
         this.tipo = tipo;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
     }
 }
 
