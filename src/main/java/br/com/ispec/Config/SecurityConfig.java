@@ -47,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers("/localizacoes/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
                         .requestMatchers("/inspecoes/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
                         .requestMatchers("/manutencoes/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
+                        .requestMatchers("/agendamentos/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
 
                         // Relatórios e logs — só ADMIN
                         .requestMatchers("/relatorios/**").hasRole("ADMIN")
