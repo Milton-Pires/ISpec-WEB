@@ -1,4 +1,5 @@
-INSERT IGNORE INTO pergunta_inspecao (pergunta, tipo_equipamento, ativo) VALUES
+INSERT
+IGNORE INTO pergunta_inspecao (pergunta, tipo_equipamento, ativo) VALUES
 -- Extintor
 ('A pressão do manômetro está na faixa verde?', 'Extintor', true),
 ('O lacre de segurança está intacto?', 'Extintor', true),
@@ -30,3 +31,30 @@ INSERT IGNORE INTO pergunta_inspecao (pergunta, tipo_equipamento, ativo) VALUES
 ('O acesso ao hidrante está desobstruído?', 'Hidrante', true),
 ('A mangueira está corretamente acondicionada no abrigo?', 'Hidrante', true),
 ('O registro de recalque está acessível e identificado?', 'Hidrante', true);
+
+
+INSERT
+IGNORE INTO usuario (nome, email, cpf, senha, tipo_usuario)
+VALUES (
+    'root',
+    'root@ispec.com',
+    '000.000.000-00',
+     '$2b$10$ZTvPllvsP/k6Sl0QFp3bsu4Xdi2YlqDyWjLO.wYFFxk9Jss9efq7i',
+    'ADMIN'
+);
+
+INSERT
+IGNORE INTO tipo_equipamento (desc_tipo) VALUES
+                                             ('Extintor'), ('Hidrante'), ('Alarme');
+
+INSERT
+IGNORE INTO agente_extintor (desc_agente) VALUES
+                                              ('Água'), ('Pó Químico'), ('CO2'), ('Espuma'), ('Acetato de Potássio');
+
+INSERT
+IGNORE INTO classe_fogo (desc_cl_fogo) VALUES
+                                           ('A'), ('B'), ('C'), ('D'), ('K');
+
+INSERT
+IGNORE INTO tipo_sensor (desc_sensor) VALUES
+                                          ('Fumaça'), ('Temperatura'), ('Movimento'), ('Chama');

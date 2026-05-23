@@ -383,8 +383,8 @@ function onTipoChange() {
     if (tipo === 'Extintor') {
         document.getElementById('campos-extintor').classList.remove('hidden');
         carregarAgentesSelect();
-        carregarTiposEquipSelect('Extintor');
-    } else if (tipo === 'Alarme') {
+        carregarClassesFogoSelect(); // ← adicione esta linha
+    }else if (tipo === 'Alarme') {
         document.getElementById('campos-alarme').classList.remove('hidden');
         carregarSensoresSelect();
         carregarTiposEquipSelect('Alarme');
@@ -392,6 +392,7 @@ function onTipoChange() {
         document.getElementById('campos-hidrante').classList.remove('hidden');
         carregarTiposEquipSelect('Hidrante');
     }
+
 }
 
 function ocultarCamposEspecificos() {
@@ -455,7 +456,18 @@ async function carregarAgentesSelect() {
     agentes.forEach(a => {
         select.innerHTML += `<option value="${a.id}">${a.descAgente}</option>`;
     });
+
 }
+    async function carregarClassesFogoSelect() {
+        const res = await apiFetch('/classes-fogo');
+        if (!res) return;
+        const classes = await res.json();
+        const select  = document.getElementById('f-classe-fogo');
+        select.innerHTML = '';
+        classes.forEach(c => {
+            select.innerHTML += `<option value="${c.id}">${c.descClFogo}</option>`;
+        });
+    }
 
 async function carregarSensoresSelect() {
     const res = await apiFetch('/tipos-sensor');
@@ -480,7 +492,7 @@ async function saveEquipamento(ev) {
         numSerie:        document.getElementById('f-num-serie').value.trim(),
         dataInstalacao:  document.getElementById('f-dt-instalacao').value || null,
         dataValidade:    document.getElementById('f-dt-validade').value   || null,
-        tipoEquipamento: { id: parseInt(document.getElementById('f-tipo-equip').value) },
+        tipoEquipamento: { id: tipo === 'Extintor' ? 1 : tipo === 'Hidrante' ? 2 : 3 },
         cliente:         { id: parseInt(document.getElementById('f-cliente').value) },
         localizacao:     { id: parseInt(document.getElementById('f-localizacao').value) },
     };
@@ -492,6 +504,10 @@ async function saveEquipamento(ev) {
         data.pressao    = parseFloat(document.getElementById('f-pressao').value)    || null;
         const agenteId  = document.getElementById('f-agente').value;
         if (agenteId) data.agente = { id: parseInt(agenteId) };
+        const classeSelect = document.getElementById('f-classe-fogo');
+        const classesSelecionadas = Array.from(classeSelect.selectedOptions)
+            .map(opt => ({ id: parseInt(opt.value) }));
+        if (classesSelecionadas.length) data.classeFogo = classesSelecionadas;
     } else if (tipo === 'Alarme') {
         data.funcionando       = document.getElementById('f-funcionando').checked;
         data.ultimaVerificacao = document.getElementById('f-ultima-verificacao').value || null;
@@ -521,6 +537,8 @@ async function saveEquipamento(ev) {
 
     closeModal();
     await carregarEquipamentos();
+
+
 }
 
 // ── Drawer ───────────────────────────────

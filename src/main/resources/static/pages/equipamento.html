@@ -394,13 +394,6 @@
                 </div>
 
                 <!-- Tipo Equipamento (catálogo) -->
-                <div class="sm:col-span-2 flex flex-col gap-1.5">
-                    <label class="font-sora font-semibold text-gray-700 text-xs">Tipo de Equipamento <span class="text-brand-red">*</span></label>
-                    <select id="f-tipo-equip" class="field px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-dm bg-white transition-all" required>
-                        <option value="">Selecione o tipo</option>
-                    </select>
-                </div>
-
                 <!-- Data Instalação -->
                 <div class="flex flex-col gap-1.5">
                     <label class="font-sora font-semibold text-gray-700 text-xs">Data de Instalação <span class="text-brand-red">*</span></label>
@@ -431,6 +424,13 @@
                         <select id="f-agente" class="field px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-dm bg-white transition-all">
                             <option value="">Selecione o agente</option>
                         </select>
+                    </div>
+                    <div class="sm:col-span-2 flex flex-col gap-1.5">
+                        <label class="font-sora font-semibold text-gray-700 text-xs">Classe de Fogo</label>
+                        <select id="f-classe-fogo" multiple
+                                class="field px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-dm bg-white transition-all h-24">
+                        </select>
+                        <p class="text-xs text-gray-400 font-dm">Segure Ctrl para selecionar mais de uma classe.</p>
                     </div>
                 </div>
 
