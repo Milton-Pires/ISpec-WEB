@@ -25,10 +25,23 @@ function formatarData(data) {
 
 // ── KPIs ────────────────────────────────
 function updateKpis() {
-    document.getElementById('kpi-total').textContent     = inspecoes.length;
-    document.getElementById('kpi-aprovadas').textContent  = inspecoes.filter(i => i.aprovado === true).length;
-    document.getElementById('kpi-reprovadas').textContent = inspecoes.filter(i => i.aprovado === false).length;
-    document.getElementById('kpi-pendentes').textContent  = inspecoes.filter(i => i.aprovado === null).length;
+    const totalEquipamentos = equipamentos.length;
+
+    const inspecoesPorEquip = new Set(
+        inspecoes.map(i => i.equipamento?.id)
+    );
+
+    const pendentes = equipamentos.filter(e =>
+        !inspecoesPorEquip.has(e.id)
+    ).length;
+
+    const aprovadas = inspecoes.filter(i => i.aprovado === true).length;
+    const reprovadas = inspecoes.filter(i => i.aprovado === false).length;
+
+    document.getElementById('kpi-total').textContent = inspecoes.length;
+    document.getElementById('kpi-aprovadas').textContent = aprovadas;
+    document.getElementById('kpi-reprovadas').textContent = reprovadas;
+    document.getElementById('kpi-pendentes').textContent = pendentes;
 }
 
 // ── Filtros ──────────────────────────────
@@ -418,22 +431,27 @@ function preencherConfirmacao() {
 
 // ── Salvar inspeção ──────────────────────
 async function salvarInspecao() {
-    const itens = perguntas.map(p => ({
-        pergunta: { id: p.id },
+    itens: perguntas.map(p => ({
+        perguntaId: Number(p.id),
         resposta: respostas[p.id] === true
-    }));
-
+    }))
     const outroResp = document.getElementById('chk-outro-responsavel').checked;
     const respId    = document.getElementById('f-responsavel').value;
 
     const body = {
-        equipamento:   { id: equipSelecionado.id },
-        dataInspecao:  document.getElementById('f-data').value,
-        observacoes:   document.getElementById('f-obs').value.trim(),
-        itens,
-        ...(outroResp && respId ? { responsavel: { id: parseInt(respId) } } : {})
+        equipamentoId: Number(equipSelecionado.id),
+        dataInspecao: document.getElementById('f-data').value,
+        observacoes: document.getElementById('f-obs').value.trim(),
+        responsavelId: outroResp ? Number(respId) : null,
+        itens: perguntas.map(p => ({
+            perguntaId: Number(p.id),
+            resposta: respostas[p.id] === true
+        }))
     };
 
+    console.log("EQUIPAMENTO:", equipSelecionado);
+
+    console.log("BODY:", body);
     const response = await apiFetch('/inspecoes', {
         method: 'POST',
         body: JSON.stringify(body)
