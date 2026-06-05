@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iSpec – Relatórios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                brand: {
+                  red:      '#8B0012',
+                  redmid:   '#C0001A',
+                  redlight: '#E8001E',
+                  rose:     '#F5E6E8',
+                }
+              },
+              fontFamily: {
+                sora: ['Sora', 'sans-serif'],
+                dm:   ['DM Sans', 'sans-serif'],
+              }
+            }
+          }
+        }
+    </script>
+    <style>
+        #sidebar { transition: width .3s ease; }
+        #sidebar.collapsed { width: 4.5rem; }
+        #sidebar.collapsed .sidebar-label,
+        #sidebar.collapsed .sidebar-logo-text,
+        #sidebar.collapsed .sidebar-section-label { opacity: 0; width: 0; overflow: hidden; pointer-events: none; }
+        #sidebar.collapsed .nav-item { justify-content: center; }
+        #sidebar-overlay.show { display: block; }
+        .nav-item.active { background: rgba(255,255,255,.15); color: white !important; }
+        .nav-item:hover  { background: rgba(255,255,255,.1); }
+
+        .field:focus { outline: none; border-color: #8B0012; box-shadow: 0 0 0 3px rgba(139,0,18,.1); }
+
+        .relatorio-card { transition: all .2s; cursor: pointer; }
+        .relatorio-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(139,0,18,.12); }
+        .relatorio-card.selected { border-color: #8B0012; background: #fff5f5; }
+
+        @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+        .anim { animation: fadeUp .4s ease both; }
+
+        .btn-loading { opacity: .7; pointer-events: none; }
+    </style>
+</head>
+<body class="bg-gray-100 flex h-screen overflow-hidden">
+
+<!-- ══════════════ SIDEBAR ══════════════ -->
+<aside id="sidebar" class="w-64 bg-gradient-to-b from-brand-red to-[#5A000D] flex flex-col shrink-0 z-40 shadow-2xl">
+    <div class="flex items-center gap-3 px-5 py-5 border-b border-white/10">
+        <div class="w-9 h-9 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-md">
+            <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="#8B0012" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2l9 4v6c0 5-3.5 9.5-9 11C6.5 21.5 3 17 3 12V6l9-4z"/>
+                <polyline points="9 12 11 14 15 10"/>
+            </svg>
+        </div>
+        <div class="sidebar-logo-text transition-all duration-300 overflow-hidden">
+            <span class="font-sora font-extrabold text-white text-xl tracking-tight leading-none">iSpec</span>
+            <p class="text-white/50 text-xs mt-0.5">Sistema de Inspeção</p>
+        </div>
+    </div>
+
+    <nav class="flex-1 px-3 py-4 overflow-y-auto flex flex-col gap-1">
+        <p class="sidebar-section-label text-white/30 text-[10px] font-sora font-semibold uppercase tracking-widest px-3 mb-2">Menu</p>
+
+        <a href="main.html" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/75 hover:text-white">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+            </svg>
+            <span class="sidebar-label font-dm font-medium text-sm">Painel Principal</span>
+        </a>
+
+        <a href="cliente.html" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/75 hover:text-white">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+            <span class="sidebar-label font-dm font-medium text-sm">Clientes</span>
+        </a>
+
+        <a href="equipamento.html" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/75 hover:text-white">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2l9 4v6c0 5-3.5 9.5-9 11C6.5 21.5 3 17 3 12V6l9-4z"/>
+                <polyline points="9 12 11 14 15 10"/>
+            </svg>
+            <span class="sidebar-label font-dm font-medium text-sm">Equipamentos</span>
+        </a>
+
+        <a href="inspecao.html" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/75 hover:text-white">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+            </svg>
+            <span class="sidebar-label font-dm font-medium text-sm">Inspeções</span>
+        </a>
+
+        <a href="agenda.html" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/75 hover:text-white">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <span class="sidebar-label font-dm font-medium text-sm">Agenda</span>
+        </a>
+
+        <a href="relatorio.html" class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg text-white">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/>
+            </svg>
+            <span class="sidebar-label font-dm font-medium text-sm">Relatórios</span>
+        </a>
+
+        <p class="sidebar-section-label text-white/30 text-[10px] font-sora font-semibold uppercase tracking-widest px-3 mb-2 mt-4">Configurações</p>
+
+        <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/75 hover:text-white">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+            </svg>
+            <span class="sidebar-label font-dm font-medium text-sm">Configurações</span>
+        </a>
+
+        <a href="login.html" onclick="logout()" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/75 hover:text-white">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            <span class="sidebar-label font-dm font-medium text-sm">Sair</span>
+        </a>
+    </nav>
+
+    <div class="flex items-center gap-3 px-4 py-4 border-t border-white/10">
+        <div class="w-9 h-9 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center shrink-0">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+        </div>
+        <div class="sidebar-logo-text transition-all duration-300 overflow-hidden min-w-0">
+            <p class="font-sora font-semibold text-white text-sm truncate" id="user-nome">Usuário</p>
+            <p class="text-white/40 text-xs truncate" id="user-email">—</p>
+        </div>
+    </div>
+</aside>
+
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-30 backdrop-blur-sm hidden" onclick="closeSidebar()"></div>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<div class="flex-1 flex flex-col overflow-hidden min-w-0">
+
+    <header class="bg-white border-b border-gray-200 px-6 py-3.5 flex items-center gap-4 shrink-0 shadow-sm">
+        <button onclick="toggleSidebar()" class="w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors shrink-0">
+            <svg viewBox="0 0 24 24" class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+        </button>
+
+        <div class="hidden md:flex items-center gap-2 text-sm text-gray-400 font-dm">
+            <a href="main.html" class="text-brand-red font-medium hover:underline">iSpec</a>
+            <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            <span class="text-gray-700 font-medium">Relatórios</span>
+        </div>
+
+        <div class="ml-auto flex items-center gap-2">
+            <div class="w-9 h-9 rounded-full bg-brand-red flex items-center justify-center cursor-pointer shadow-sm">
+                <span class="text-white font-sora font-bold text-sm" id="user-initial">U</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto bg-gray-50 px-6 py-6">
+
+        <div class="mb-6">
+            <h1 class="font-sora font-extrabold text-gray-900 text-2xl leading-tight">Relatórios</h1>
+            <p class="text-gray-500 text-sm mt-0.5 font-dm">Gere relatórios por cliente e período para exportar em PDF ou Excel.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            <!-- ── Painel de configuração ── -->
+            <div class="lg:col-span-1 flex flex-col gap-4">
+
+                <!-- Cliente -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col gap-4">
+                    <p class="font-sora font-bold text-gray-800 text-sm flex items-center gap-2">
+                        <span class="w-6 h-6 bg-brand-rose rounded-lg flex items-center justify-center text-brand-red font-bold text-xs">1</span>
+                        Selecione o Cliente
+                    </p>
+                    <select id="sel-cliente" onchange="onClienteChange()"
+                            class="field w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-dm bg-white transition-all">
+                        <option value="">Selecione um cliente</option>
+                    </select>
+                    <div id="cliente-info" class="hidden bg-brand-rose rounded-xl p-3 flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-lg bg-brand-red flex items-center justify-center shrink-0">
+                            <span class="font-sora font-bold text-white text-sm" id="cliente-inicial">?</span>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="font-sora font-semibold text-brand-red text-sm truncate" id="cliente-nome">—</p>
+                            <p class="text-brand-red/60 text-xs font-dm" id="cliente-cnpj">—</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Período -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col gap-4">
+                    <p class="font-sora font-bold text-gray-800 text-sm flex items-center gap-2">
+                        <span class="w-6 h-6 bg-brand-rose rounded-lg flex items-center justify-center text-brand-red font-bold text-xs">2</span>
+                        Defina o Período
+                    </p>
+                    <div class="flex flex-col gap-3">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs font-sora font-semibold text-gray-500">Data Início</label>
+                            <input id="f-inicio" type="date" class="field px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-dm transition-all"/>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-xs font-sora font-semibold text-gray-500">Data Fim</label>
+                            <input id="f-fim" type="date" class="field px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-dm transition-all"/>
+                        </div>
+                    </div>
+
+                    <!-- Atalhos de período -->
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="setPeriodo('mes')" class="px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-xs font-dm text-gray-600 hover:border-brand-red hover:text-brand-red transition-all">Este mês</button>
+                        <button onclick="setPeriodo('trimestre')" class="px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-xs font-dm text-gray-600 hover:border-brand-red hover:text-brand-red transition-all">Trimestre</button>
+                        <button onclick="setPeriodo('semestre')" class="px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-xs font-dm text-gray-600 hover:border-brand-red hover:text-brand-red transition-all">Semestre</button>
+                        <button onclick="setPeriodo('ano')" class="px-3 py-1.5 rounded-lg bg-gray-50 border border-gray-200 text-xs font-dm text-gray-600 hover:border-brand-red hover:text-brand-red transition-all">Este ano</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ── Tipos de relatório ── -->
+            <div class="lg:col-span-2 flex flex-col gap-4">
+
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+                    <p class="font-sora font-bold text-gray-800 text-sm flex items-center gap-2 mb-4">
+                        <span class="w-6 h-6 bg-brand-rose rounded-lg flex items-center justify-center text-brand-red font-bold text-xs">3</span>
+                        Escolha o Relatório e Exporte
+                    </p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                        <!-- Inspeções -->
+                        <div class="relatorio-card rounded-xl border-2 border-gray-100 p-4 flex flex-col gap-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center shrink-0">
+                                    <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="#166534" stroke-width="2" stroke-linecap="round">
+                                        <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-sora font-bold text-gray-800 text-sm">Inspeções</p>
+                                    <p class="text-gray-400 text-xs font-dm">Resultados e checklist</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="exportar('inspecoes', 'pdf')"
+                                        class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-red-50 border border-red-200 text-brand-red font-sora font-semibold text-xs hover:bg-red-100 transition-all">
+                                    <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                    PDF
+                                </button>
+                                <button onclick="exportar('inspecoes', 'excel')"
+                                        class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-green-50 border border-green-200 text-green-700 font-sora font-semibold text-xs hover:bg-green-100 transition-all">
+                                    <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                                    Excel
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Manutenções -->
+                        <div class="relatorio-card rounded-xl border-2 border-gray-100 p-4 flex flex-col gap-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center shrink-0">
+                                    <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="#854d0e" stroke-width="2" stroke-linecap="round">
+                                        <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-sora font-bold text-gray-800 text-sm">Manutenções</p>
+                                    <p class="text-gray-400 text-xs font-dm">Serviços realizados</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="exportar('manutencoes', 'pdf')"
+                                        class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-red-50 border border-red-200 text-brand-red font-sora font-semibold text-xs hover:bg-red-100 transition-all">
+                                    <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                    PDF
+                                </button>
+                                <button onclick="exportar('manutencoes', 'excel')"
+                                        class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-green-50 border border-green-200 text-green-700 font-sora font-semibold text-xs hover:bg-green-100 transition-all">
+                                    <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                                    Excel
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Equipamentos -->
+                        <div class="relatorio-card rounded-xl border-2 border-gray-100 p-4 flex flex-col gap-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-brand-rose rounded-xl flex items-center justify-center shrink-0">
+                                    <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="#8B0012" stroke-width="2" stroke-linecap="round">
+                                        <path d="M12 2l9 4v6c0 5-3.5 9.5-9 11C6.5 21.5 3 17 3 12V6l9-4z"/>
+                                        <polyline points="9 12 11 14 15 10"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-sora font-bold text-gray-800 text-sm">Equipamentos</p>
+                                    <p class="text-gray-400 text-xs font-dm">Status e validades</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="exportar('equipamentos', 'pdf')"
+                                        class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-red-50 border border-red-200 text-brand-red font-sora font-semibold text-xs hover:bg-red-100 transition-all">
+                                    <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                    PDF
+                                </button>
+                                <button onclick="exportar('equipamentos', 'excel')"
+                                        class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-green-50 border border-green-200 text-green-700 font-sora font-semibold text-xs hover:bg-green-100 transition-all">
+                                    <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                                    Excel
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Geral -->
+                        <div class="relatorio-card rounded-xl border-2 border-gray-100 p-4 flex flex-col gap-3 bg-gradient-to-br from-gray-50 to-white">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center shrink-0">
+                                    <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="#1e40af" stroke-width="2" stroke-linecap="round">
+                                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                                        <polyline points="14 2 14 8 20 8"/>
+                                        <line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-sora font-bold text-gray-800 text-sm">Relatório Geral</p>
+                                    <p class="text-gray-400 text-xs font-dm">Inspeções + Manutenções + Equipamentos</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="exportar('geral', 'pdf')"
+                                        class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-red-50 border border-red-200 text-brand-red font-sora font-semibold text-xs hover:bg-red-100 transition-all">
+                                    <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                    PDF
+                                </button>
+                                <button onclick="exportar('geral', 'excel')"
+                                        class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-green-50 border border-green-200 text-green-700 font-sora font-semibold text-xs hover:bg-green-100 transition-all">
+                                    <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                                    Excel
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Mensagem de erro/aviso -->
+                <div id="msg-erro" class="hidden bg-red-50 border border-red-200 text-brand-red text-sm px-4 py-3 rounded-xl flex items-center gap-2 font-dm">
+                    <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16" stroke-width="3"/>
+                    </svg>
+                    <span id="msg-erro-text"></span>
+                </div>
+
+                <!-- Instrução -->
+                <div id="msg-instrucao" class="bg-blue-50 border border-blue-100 text-blue-700 text-sm px-4 py-3 rounded-xl flex items-center gap-2 font-dm">
+                    <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16" stroke-width="3"/>
+                    </svg>
+                    Selecione um cliente e um período para habilitar os relatórios.
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script src="../js/app.js"></script>
+<script src="../js/relatorio.js"></script>
+</body>
+</html>

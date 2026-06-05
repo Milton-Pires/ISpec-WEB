@@ -1,44 +1,121 @@
 package br.com.ispec.Controller;
 
-import java.util.List;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import br.com.ispec.Entities.Inspecao;
-import br.com.ispec.Entities.Manutencao;
 import br.com.ispec.Service.RelatorioService;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/relatorios")
-
 public class RelatorioController {
+
     private final RelatorioService service;
 
-    public RelatorioController(RelatorioService service){
+    public RelatorioController(RelatorioService service) {
         this.service = service;
     }
 
-    @GetMapping("/cliente/{id}")
-    public List<Inspecao> relatorioCliente(@PathVariable Long id){
-        return service.relatorioPorCliente(id);
+    // ── PDF ──────────────────────────────────────────────────────────────────
+
+    @GetMapping("/inspecoes/pdf")
+    public ResponseEntity<byte[]> pdfInspecoes(
+            @RequestParam Long clienteId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) throws Exception {
+        byte[] pdf = service.gerarPdfInspecoes(clienteId, inicio, fim);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=inspecoes.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
-    @GetMapping("/usuario/{id}")
-    public List<Inspecao> relatorioUsuario(@PathVariable Long id){
-        return service.relatorioPorUsuario(id);
+    @GetMapping("/equipamentos/pdf")
+    public ResponseEntity<byte[]> pdfEquipamentos(
+            @RequestParam Long clienteId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) throws Exception {
+        byte[] pdf = service.gerarPdfEquipamentos(clienteId, inicio, fim);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=equipamentos.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
-    @GetMapping("/localizacao/{id}")
-    public List<Inspecao> relatorioLocalizacao(@PathVariable Long id){
-        return service.relatorioPorLocalizacao(id);
+    @GetMapping("/manutencoes/pdf")
+    public ResponseEntity<byte[]> pdfManutencoes(
+            @RequestParam Long clienteId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) throws Exception {
+        byte[] pdf = service.gerarPdfManutencoes(clienteId, inicio, fim);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=manutencoes.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
-    @GetMapping("/manutencoes/tecnico/{id}")
-    public List<Manutencao> manutencoesTecnico(@PathVariable Long id){
-        return service.manutencoesPorTecnico(id);
+    @GetMapping("/geral/pdf")
+    public ResponseEntity<byte[]> pdfGeral(
+            @RequestParam Long clienteId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) throws Exception {
+        byte[] pdf = service.gerarPdfGeral(clienteId, inicio, fim);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=relatorio-geral.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
+    }
+
+    // ── Excel ─────────────────────────────────────────────────────────────────
+
+    @GetMapping("/inspecoes/excel")
+    public ResponseEntity<byte[]> excelInspecoes(
+            @RequestParam Long clienteId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) throws Exception {
+        byte[] excel = service.gerarExcel(clienteId, "INSPECOES", inicio, fim);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=inspecoes.xlsx")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excel);
+    }
+
+    @GetMapping("/equipamentos/excel")
+    public ResponseEntity<byte[]> excelEquipamentos(
+            @RequestParam Long clienteId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) throws Exception {
+        byte[] excel = service.gerarExcel(clienteId, "EQUIPAMENTOS", inicio, fim);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=equipamentos.xlsx")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excel);
+    }
+
+    @GetMapping("/manutencoes/excel")
+    public ResponseEntity<byte[]> excelManutencoes(
+            @RequestParam Long clienteId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) throws Exception {
+        byte[] excel = service.gerarExcel(clienteId, "MANUTENCOES", inicio, fim);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=manutencoes.xlsx")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excel);
+    }
+
+    @GetMapping("/geral/excel")
+    public ResponseEntity<byte[]> excelGeral(
+            @RequestParam Long clienteId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim) throws Exception {
+        byte[] excel = service.gerarExcel(clienteId, "GERAL", inicio, fim);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=relatorio-geral.xlsx")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excel);
     }
 }
