@@ -112,4 +112,7 @@ public abstract class Equipamento {
     public boolean isPrecisaManutencao() {
         return precisaManutencao();
     }
+
+
+
 }

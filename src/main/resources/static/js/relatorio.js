@@ -156,6 +156,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   await carregarClientes();
+  carregarBadgeAvisos();
 });
 
 function toggleSidebar() {

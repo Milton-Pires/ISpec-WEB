@@ -591,6 +591,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         carregarEquipamentos(),
         carregarUsuarios(),
         carregarClientesFiltro(),
+        carregarBadgeAvisos();
     ]);
 });
 

@@ -11,4 +11,5 @@ public interface InspecaoRepository extends JpaRepository<Inspecao, Long> {
     List<Inspecao> findByEquipamento_Cliente_Id(Long clienteId);
     List<Inspecao> findByEquipamento_Localizacao_Id(Long localizacaoId);
     List<Inspecao> findByEquipamento_Cliente_IdAndDataInspecaoBetween(Long clienteId, LocalDate inicio, LocalDate fim);
+    List<Inspecao> findByDataInspecaoBetweenAndAprovado(LocalDate inicio, LocalDate fim, Boolean aprovado);
 }

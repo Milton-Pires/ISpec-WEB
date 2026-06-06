@@ -176,11 +176,11 @@ public class RelatorioService {
         for (int i = 0; i < lista.size(); i++) {
             Inspecao ins = lista.get(i);
             boolean par = i % 2 == 0;
-            table.addCell(celulaData(ins.getEquipamento()?.getNome(), par));
-            table.addCell(celulaData(ins.getEquipamento()?.getNumSerie(), par));
-            table.addCell(celulaData(ins.getEquipamento()?.getTipo(), par));
-            table.addCell(celulaData(ins.getDataInspecao()?.format(FMT), par));
-            table.addCell(celulaData(ins.getResponsavel()?.getNome(), par));
+            table.addCell(celulaData(ins.getEquipamento() != null ? ins.getEquipamento().getNome() : "—", par));
+            table.addCell(celulaData(ins.getEquipamento() != null ? ins.getEquipamento().getNumSerie() : "—", par));
+            table.addCell(celulaData(ins.getEquipamento() != null ? ins.getEquipamento().getClass().getSimpleName() : "—", par));
+            table.addCell(celulaData(ins.getDataInspecao() != null ? ins.getDataInspecao().format(FMT) : "—", par));
+            table.addCell(celulaData(ins.getResponsavel() != null ? ins.getResponsavel().getNome() : "—", par));
             table.addCell(celulaResultado(Boolean.TRUE.equals(ins.getAprovado()), par));
             table.addCell(celulaData(ins.getObservacoes(), par));
         }
@@ -226,7 +226,7 @@ public class RelatorioService {
             ).stream().filter(s -> !s.isEmpty()).toList())
                     : "—";
             table.addCell(celulaData(eq.getNome(), par));
-            table.addCell(celulaData(eq.getTipo(), par));
+            table.addCell(celulaData(eq.getClass().getSimpleName(), par));
             table.addCell(celulaData(loc, par));
             table.addCell(celulaData(eq.getStatus() != null ? eq.getStatus().name() : "—", par));
             table.addCell(celulaData(eq.getDataInstalacao() != null ? eq.getDataInstalacao().format(FMT) : "—", par));
@@ -317,7 +317,7 @@ public class RelatorioService {
             boolean par = i % 2 == 0;
             tInsp.addCell(celulaData(ins.getEquipamento() != null ? ins.getEquipamento().getNome() : "—", par));
             tInsp.addCell(celulaData(ins.getEquipamento() != null ? ins.getEquipamento().getNumSerie() : "—", par));
-            tInsp.addCell(celulaData(ins.getEquipamento() != null ? ins.getEquipamento().getTipo() : "—", par));
+            tInsp.addCell(celulaData(ins.getEquipamento() != null ?ins.getEquipamento().getClass().getSimpleName() : "—", par));
             tInsp.addCell(celulaData(ins.getDataInspecao() != null ? ins.getDataInspecao().format(FMT) : "—", par));
             tInsp.addCell(celulaData(ins.getResponsavel() != null ? ins.getResponsavel().getNome() : "—", par));
             tInsp.addCell(celulaResultado(Boolean.TRUE.equals(ins.getAprovado()), par));
@@ -371,7 +371,7 @@ public class RelatorioService {
             Equipamento eq = equipamentos.get(i);
             boolean par = i % 2 == 0;
             tEq.addCell(celulaData(eq.getNome(), par));
-            tEq.addCell(celulaData(eq.getTipo(), par));
+            tEq.addCell(celulaData(eq.getClass().getSimpleName(), par));
             tEq.addCell(celulaData(eq.getStatus() != null ? eq.getStatus().name() : "—", par));
             tEq.addCell(celulaData(eq.getDataInstalacao() != null ? eq.getDataInstalacao().format(FMT) : "—", par));
             tEq.addCell(celulaData(eq.getDataValidade()   != null ? eq.getDataValidade().format(FMT)   : "—", par));
@@ -402,7 +402,7 @@ public class RelatorioService {
                 criarLinha(sheet, i + 1, i % 2 != 0 ? parStyle : null,
                         ins.getEquipamento() != null ? ins.getEquipamento().getNome() : "—",
                         ins.getEquipamento() != null ? ins.getEquipamento().getNumSerie() : "—",
-                        ins.getEquipamento() != null ? ins.getEquipamento().getTipo() : "—",
+                        ins.getEquipamento() != null ? ins.getEquipamento().getClass().getSimpleName() : "—",
                         ins.getDataInspecao() != null ? ins.getDataInspecao().format(FMT) : "—",
                         ins.getResponsavel() != null ? ins.getResponsavel().getNome() : "—",
                         Boolean.TRUE.equals(ins.getAprovado()) ? "Aprovado" : "Reprovado",
@@ -439,7 +439,7 @@ public class RelatorioService {
                 Equipamento eq = lista.get(i);
                 criarLinha(sheet, i + 1, i % 2 != 0 ? parStyle : null,
                         eq.getNome(),
-                        eq.getTipo(),
+                        eq.getClass().getSimpleName(),
                         eq.getStatus() != null ? eq.getStatus().name() : "—",
                         eq.getDataInstalacao() != null ? eq.getDataInstalacao().format(FMT) : "—",
                         eq.getDataValidade()   != null ? eq.getDataValidade().format(FMT)   : "—"

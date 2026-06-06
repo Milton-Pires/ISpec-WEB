@@ -315,5 +315,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   carregarClientes();
+  carregarBadgeAvisos();
 });
 

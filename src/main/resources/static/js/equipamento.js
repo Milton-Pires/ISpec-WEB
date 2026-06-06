@@ -648,4 +648,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     carregarEquipamentos();
+    carregarBadgeAvisos();
 });

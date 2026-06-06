@@ -42,3 +42,27 @@ async function apiFetch(endpoint, options = {}) {
 
   return response;
 }
+
+// ── Badge de avisos na sidebar ───────────
+async function carregarBadgeAvisos() {
+  try {
+    const res = await apiFetch('/avisos');
+    if (!res) return;
+    const data = await res.json();
+
+    const total = (data.vencidos?.length || 0)
+                + (data.vencendo30?.length || 0)
+                + (data.vencendo90?.length || 0)
+                + (data.reprovadas?.length || 0);
+
+    const badgeEl = document.getElementById('badge-avisos');
+    if (!badgeEl) return;
+
+    if (total > 0) {
+      badgeEl.textContent = total > 99 ? '99+' : total;
+      badgeEl.classList.remove('hidden');
+    } else {
+      badgeEl.classList.add('hidden');
+    }
+  } catch (e) {}
+}

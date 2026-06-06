@@ -391,6 +391,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await Promise.all([carregarAgendamentos(), carregarUsuarios()]);
   await verificarVencidos();
+
+  carregarBadgeAvisos();
 });
 
 function toggleSidebar() {
