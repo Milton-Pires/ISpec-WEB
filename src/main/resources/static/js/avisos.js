@@ -183,8 +183,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       sidebar?.classList.remove('mobile-open');
     }
   });
+
   await carregarAvisos();
-  carregarBadgeAvisos();
+  await carregarBadgeAvisos();
+
+  const badgeEl = document.getElementById('badge-avisos');
+  if (badgeEl) badgeEl.classList.add('hidden');
 });
 
 function toggleSidebar() {

@@ -45,6 +45,9 @@ async function apiFetch(endpoint, options = {}) {
 
 // ── Badge de avisos na sidebar ───────────
 async function carregarBadgeAvisos() {
+  // Se estiver na página de avisos, não mostra o badge
+  if (window.location.pathname.includes('avisos.html')) return;
+
   try {
     const res = await apiFetch('/avisos');
     if (!res) return;
@@ -53,7 +56,8 @@ async function carregarBadgeAvisos() {
     const total = (data.vencidos?.length || 0)
                 + (data.vencendo30?.length || 0)
                 + (data.vencendo90?.length || 0)
-                + (data.reprovadas?.length || 0);
+                + (data.reprovadas?.length || 0)
+                + (data.agendaSemana?.length || 0);
 
     const badgeEl = document.getElementById('badge-avisos');
     if (!badgeEl) return;
@@ -64,5 +68,7 @@ async function carregarBadgeAvisos() {
     } else {
       badgeEl.classList.add('hidden');
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error('Erro badge avisos:', e);
+  }
 }

@@ -43,4 +43,13 @@ public class UsuarioService {
         return repository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
+
+    public Usuario atualizar(Long id, Usuario dados) {
+        Usuario usuario = buscarPorId(id);
+        usuario.setNome(dados.getNome());
+        usuario.setCpf(dados.getCpf());
+        usuario.setEmail(dados.getEmail());
+        usuario.setTipo(dados.getTipo());
+        return repository.save(usuario);
+    }
 }

@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,7 +27,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -36,11 +37,14 @@ public class SecurityConfig {
                         .requestMatchers("/", "/index.html", "/pages/**", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
 
-                        // Clientes — TECNICO não tem acesso
-                        .requestMatchers("/clientes/**").hasAnyRole("ADMIN", "FISCAL")
+                                // TECNICO pode apenas visualizar clientes
+                                .requestMatchers(HttpMethod.GET, "/clientes/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
 
-                        // FISCAL não pode deletar clientes
-                        .requestMatchers(HttpMethod.DELETE, "/clientes/**").hasRole("ADMIN")
+                                // FISCAL não pode deletar clientes
+                                .requestMatchers(HttpMethod.DELETE, "/clientes/**").hasRole("ADMIN")
+
+                                // Clientes — TECNICO não tem acesso a POST/PUT/DELETE
+                                .requestMatchers("/clientes/**").hasAnyRole("ADMIN", "FISCAL")
 
                         // Equipamentos, Localizações, Inspeções, Manutenções — todos acessam
                         .requestMatchers("/equipamentos/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
@@ -49,7 +53,8 @@ public class SecurityConfig {
                         .requestMatchers("/agendamentos/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
                         .requestMatchers("/avisos/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
 
-                        // Relatórios e logs — só ADMIN
+                        // Relatórios, logs e usuários — só ADMIN
+                        .requestMatchers("/usuarios/**").hasRole("ADMIN")
                         .requestMatchers("/relatorios/**").hasRole("ADMIN")
                         .requestMatchers("/logs/**").hasRole("ADMIN")
 
