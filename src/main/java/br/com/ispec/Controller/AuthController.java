@@ -23,6 +23,11 @@ public class AuthController {
         this.jwtUtil = jwtUtil;
     }
 
+    @GetMapping("/hash")
+    public String gerarHash(@RequestParam String senha) {
+        return passwordEncoder.encode(senha);
+    }
+
     @PostMapping("/cadastro")
     public ResponseEntity<?> cadastrar(@RequestBody Usuario usuario) {
         try {

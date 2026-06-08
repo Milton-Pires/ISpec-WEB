@@ -431,27 +431,23 @@ function preencherConfirmacao() {
 
 // ── Salvar inspeção ──────────────────────
 async function salvarInspecao() {
-    itens: perguntas.map(p => ({
-        perguntaId: Number(p.id),
-        resposta: respostas[p.id] === true
-    }))
     const outroResp = document.getElementById('chk-outro-responsavel').checked;
     const respId    = document.getElementById('f-responsavel').value;
 
     const body = {
         equipamentoId: Number(equipSelecionado.id),
-        dataInspecao: document.getElementById('f-data').value,
-        observacoes: document.getElementById('f-obs').value.trim(),
-        responsavelId: outroResp ? Number(respId) : null,
+        dataInspecao:  document.getElementById('f-data').value,
+        observacoes:   document.getElementById('f-obs').value.trim(),
         itens: perguntas.map(p => ({
             perguntaId: Number(p.id),
-            resposta: respostas[p.id] === true
+            resposta:   respostas[p.id] === true
         }))
     };
 
-    console.log("EQUIPAMENTO:", equipSelecionado);
+    if (outroResp && respId) {
+        body.responsavelId = Number(respId);
+    }
 
-    console.log("BODY:", body);
     const response = await apiFetch('/inspecoes', {
         method: 'POST',
         body: JSON.stringify(body)
@@ -591,8 +587,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         carregarEquipamentos(),
         carregarUsuarios(),
         carregarClientesFiltro(),
-        carregarBadgeAvisos();
     ]);
+
+    carregarBadgeAvisos();
 });
 
 function toggleSidebar() {

@@ -53,6 +53,9 @@ public class SecurityConfig {
                         .requestMatchers("/agendamentos/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
                         .requestMatchers("/avisos/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
 
+                        //APENAS PARA CADASTRAR USUARIOS FACIL!!!:
+                        .requestMatchers("/auth/**").permitAll()
+
                         // Relatórios, logs e usuários — só ADMIN
                         .requestMatchers("/usuarios/**").hasRole("ADMIN")
                         .requestMatchers("/relatorios/**").hasRole("ADMIN")

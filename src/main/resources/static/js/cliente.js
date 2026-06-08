@@ -316,5 +316,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   carregarClientes();
   carregarBadgeAvisos();
+  carregarUsuariosLogados();
 });
 

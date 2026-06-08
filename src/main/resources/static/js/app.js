@@ -72,3 +72,42 @@ async function carregarBadgeAvisos() {
     console.error('Erro badge avisos:', e);
   }
 }
+
+// ── Carregar usuário logado na sidebar ───
+async function carregarUsuarioLogado() {
+  const token = getToken();
+  if (!token) return;
+
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const email   = payload.sub;
+    const role    = payload.role;
+
+    // Preenche email e inicial imediatamente
+    const emailEl   = document.getElementById('user-email');
+    const initialEl = document.getElementById('user-initial');
+    if (emailEl)   emailEl.textContent   = email;
+    if (initialEl) initialEl.textContent = email.charAt(0).toUpperCase();
+
+    // Busca nome completo (só ADMIN tem acesso a /usuarios)
+    if (role === 'ADMIN') {
+      const res = await apiFetch('/usuarios');
+      if (!res) return;
+      const lista = await res.json();
+      const u = lista.find(x => x.email === email);
+      if (u) {
+        const nomeEl = document.getElementById('user-nome');
+        if (nomeEl)    nomeEl.textContent    = u.nome;
+        if (initialEl) initialEl.textContent = u.nome.charAt(0).toUpperCase();
+      }
+    } else {
+      // Para não-admin busca só pelo email no token
+      const nomeEl = document.getElementById('user-nome');
+      if (nomeEl) nomeEl.textContent = email.split('@')[0];
+    }
+  } catch (e) {}
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  carregarUsuarioLogado();
+});
