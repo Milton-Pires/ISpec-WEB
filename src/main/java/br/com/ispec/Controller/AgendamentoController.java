@@ -6,6 +6,8 @@ import br.com.ispec.Service.AgendamentoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -58,5 +60,10 @@ public class AgendamentoController {
     @DeleteMapping("/{id}")
     public void deletar(@PathVariable Long id) {
         service.deletar(id);
+    }
+
+    @GetMapping("/meus")
+    public List<Agendamento> meus(Principal principal) {
+        return service.listarPorEmail(principal.getName());
     }
 }

@@ -245,3 +245,35 @@ INSERT IGNORE INTO agendamento (id_responsavel, data, tipo, status, titulo, desc
 (2, DATE_ADD(CURDATE(), INTERVAL 15 DAY), 'INSPECAO',       'PENDENTE', 'Inspecao Torres Sul',                   'Inspecao trimestral'),
 (6, DATE_ADD(CURDATE(), INTERVAL 20 DAY), 'INSPECAO',       'PENDENTE', 'Inspecao Shopping - Ala A',             'Verificacao alarmes'),
 (3, DATE_ADD(CURDATE(), INTERVAL -5 DAY), 'INSPECAO',       'PENDENTE', 'Inspecao Condominio Bloco B',           'Vencida - aguardando confirmacao');
+
+-- ── Agendamentos adicionais para todos os usuários ────────
+INSERT IGNORE INTO agendamento (id_responsavel, data, tipo, status, titulo, descricao) VALUES
+-- Ana Fiscal (id 2)
+(2, DATE_ADD(CURDATE(), INTERVAL 8  DAY), 'INSPECAO',       'PENDENTE', 'Inspecao Hospital - Farmacia',          'Verificacao extintores farmacia'),
+(2, DATE_ADD(CURDATE(), INTERVAL 12 DAY), 'VISITA_TECNICA', 'PENDENTE', 'Visita Condominio Bloco B',             'Avaliacao novos equipamentos'),
+(2, DATE_ADD(CURDATE(), INTERVAL 25 DAY), 'INSPECAO',       'PENDENTE', 'Inspecao Shopping - Subsolo',           'Verificacao hidrantes estacionamento'),
+
+-- Bruno Fiscal (id 3)
+(3, DATE_ADD(CURDATE(), INTERVAL 9  DAY), 'INSPECAO',       'PENDENTE', 'Inspecao Escola - Biblioteca',          'Verificacao alarmes biblioteca'),
+(3, DATE_ADD(CURDATE(), INTERVAL 14 DAY), 'MANUTENCAO',     'PENDENTE', 'Manutencao Condominio Garagem',         'Revisao hidrantes garagem'),
+(3, DATE_ADD(CURDATE(), INTERVAL 22 DAY), 'VISITA_TECNICA', 'PENDENTE', 'Visita Clinica Sorrir',                 'Levantamento equipamentos novos'),
+
+-- Diego Tecnico (id 4)
+(4, DATE_ADD(CURDATE(), INTERVAL 10 DAY), 'MANUTENCAO',     'PENDENTE', 'Manutencao Metalurgica Galpao 2',       'Revisao extintores almoxarifado'),
+(4, DATE_ADD(CURDATE(), INTERVAL 16 DAY), 'INSPECAO',       'PENDENTE', 'Inspecao FastLog Galpao',               'Inspecao semestral galpao'),
+(4, DATE_ADD(CURDATE(), INTERVAL 28 DAY), 'VISITA_TECNICA', 'PENDENTE', 'Visita Torres Sul',                     'Avaliacao sistema de alarme'),
+
+-- Fernanda Fiscal (id 6)
+(6, DATE_ADD(CURDATE(), INTERVAL 11 DAY), 'INSPECAO',       'PENDENTE', 'Inspecao Hospital - UTI',               'Inspecao mensal UTI'),
+(6, DATE_ADD(CURDATE(), INTERVAL 18 DAY), 'MANUTENCAO',     'PENDENTE', 'Manutencao Shopping - Ala A',           'Troca carga extintores Ala A'),
+(6, DATE_ADD(CURDATE(), INTERVAL 30 DAY), 'INSPECAO',       'PENDENTE', 'Inspecao Metalurgica Galpao 1',         'Inspecao trimestral producao'),
+
+-- Gabriel Tecnico (id 7)
+(7, DATE_ADD(CURDATE(), INTERVAL 13 DAY), 'MANUTENCAO',     'PENDENTE', 'Manutencao Escola - Bloco Pedagogico',  'Revisao extintores bloco pedagogico'),
+(7, DATE_ADD(CURDATE(), INTERVAL 19 DAY), 'INSPECAO',       'PENDENTE', 'Inspecao Condominio - Salao Festas',    'Inspecao anual salao de festas'),
+(7, DATE_ADD(CURDATE(), INTERVAL 35 DAY), 'VISITA_TECNICA', 'PENDENTE', 'Visita FastLog',                        'Levantamento para novo contrato'),
+
+-- Eduarda Tecnica (id 5)
+(5, DATE_ADD(CURDATE(), INTERVAL 17 DAY), 'MANUTENCAO',     'PENDENTE', 'Manutencao Hospital - Recepcao',        'Revisao extintores recepcao'),
+(5, DATE_ADD(CURDATE(), INTERVAL 21 DAY), 'INSPECAO',       'PENDENTE', 'Inspecao Shopping - Ala B',             'Inspecao semestral lojas'),
+(5, DATE_ADD(CURDATE(), INTERVAL 40 DAY), 'VISITA_TECNICA', 'PENDENTE', 'Visita Metalurgica',                    'Avaliacao conformidade NBR');

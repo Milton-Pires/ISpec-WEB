@@ -44,6 +44,9 @@ public class SecurityConfig {
                         // FISCAL não pode deletar clientes
                         .requestMatchers(HttpMethod.DELETE, "/clientes/**").hasRole("ADMIN")
 
+                        //AGENDAMENTO
+                        .requestMatchers("/agendamentos/meus").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
+
                         // FISCAL só visualiza equipamentos
                         .requestMatchers(HttpMethod.GET, "/equipamentos/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
                         .requestMatchers("/equipamentos/**").hasAnyRole("ADMIN", "TECNICO")

@@ -77,4 +77,10 @@ public class AgendamentoService {
     public void deletar(Long id) {
         repository.deleteById(id);
     }
+
+    public List<Agendamento> listarPorEmail(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        return repository.findByResponsavel_Id(usuario.getId());
+    }
 }

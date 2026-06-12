@@ -356,16 +356,21 @@ function fecharVencidos() {
 
 // ── Carregar dados ───────────────────────
 async function carregarAgendamentos() {
-  const res = await apiFetch('/agendamentos');
+  const token   = getToken();
+  const payload = JSON.parse(atob(token.split('.')[1]));
+  const role    = payload.role;
+
+  const endpoint = role === 'ADMIN' ? '/agendamentos' : '/agendamentos/meus';
+  const res = await apiFetch(endpoint);
   if (!res) return;
   agendamentos = await res.json();
   renderCalendario();
 }
 
 async function carregarUsuarios() {
-  const res = await apiFetch('/usuarios');
+  const res = await apiFetch('/usuarios/todos');
   if (!res) return;
-  usuarios = await res.json();
+  const usuarios = await res.json();
   const select = document.getElementById('f-responsavel');
   select.innerHTML = '<option value="">Usuário logado (padrão)</option>';
   usuarios.forEach(u => {

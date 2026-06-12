@@ -12,4 +12,5 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
     List<Agendamento> findByResponsavel_Id(Long responsavelId);
     List<Agendamento> findByDataBetween(LocalDate inicio, LocalDate fim);
     List<Agendamento> findByDataLessThanEqualAndStatus(LocalDate data, StatusAgendamento status);
+
 }
