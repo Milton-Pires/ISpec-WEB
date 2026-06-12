@@ -44,10 +44,9 @@ async function carregarDashboard() {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const email   = payload.sub;
-      const resUsuarios = await apiFetch('/usuarios');
+      const resUsuarios = await apiFetch('/usuarios/me');
       if (resUsuarios) {
-        const lista = await resUsuarios.json();
-        const u = lista.find(x => x.email === email);
+        const u = await resUsuarios.json();
         if (u) {
           const welcomeEl = document.getElementById('welcome-msg');
           if (welcomeEl) welcomeEl.textContent = `${saudacao()}, ${u.nome.split(' ')[0]} 👋`;

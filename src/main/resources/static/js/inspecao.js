@@ -545,24 +545,13 @@ async function carregarEquipamentos() {
 }
 
 async function carregarUsuarios() {
-    const res = await apiFetch('/usuarios');
+    const res = await apiFetch('/usuarios/todos');
     if (!res) return;
-    usuarios = await res.json();
+    const lista = await res.json();
     const select = document.getElementById('f-responsavel');
-    select.innerHTML = '<option value="">Selecione o responsável</option>';
-    usuarios.forEach(u => {
+    select.innerHTML = '<option value="">Usuário logado (padrão)</option>';
+    lista.forEach(u => {
         select.innerHTML += `<option value="${u.id}">${u.nome} (${u.tipo})</option>`;
-    });
-}
-
-async function carregarClientesFiltro() {
-    const res = await apiFetch('/clientes');
-    if (!res) return;
-    const clientes = await res.json();
-    const select = document.getElementById('filter-cliente');
-    select.innerHTML = '<option value="todos">Todos os clientes</option>';
-    clientes.forEach(c => {
-        select.innerHTML += `<option value="${c.id}">${c.razaoSocial}</option>`;
     });
 }
 

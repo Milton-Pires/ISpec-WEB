@@ -108,6 +108,23 @@ async function carregarUsuarioLogado() {
   } catch (e) {}
 }
 
+async function ajustarMenuPorRole() {
+  const token = getToken();
+  if (!token) return;
+
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const role    = payload.role;
+
+    // Esconde o link de Usuários para não-admins
+    const linkUsuarios = document.querySelector('a[href="usuarios.html"]');
+    if (linkUsuarios && role !== 'ADMIN') {
+      linkUsuarios.style.display = 'none';
+    }
+  } catch (e) {}
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   carregarUsuarioLogado();
+  ajustarMenuPorRole();
 });

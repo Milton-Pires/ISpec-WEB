@@ -214,24 +214,24 @@ INSERT IGNORE INTO hidrante (id_equipamento, pressao_agua, comprimento_mangueira
 
 -- ── Inspeções aprovadas ───────────────────────────────────
 INSERT IGNORE INTO inspecao (id_equipamento, id_responsavel, data_inspecao, aprovado, observacoes) VALUES
-(1,  2, '2026-05-10', true,  'Tudo em conformidade.'),
-(3,  3, '2026-05-12', true,  'Pressao adequada, lacre intacto.'),
-(5,  2, '2026-05-14', true,  'Extintor em perfeito estado.'),
-(8,  6, '2026-05-15', true,  'Inspecao hospitalar aprovada.'),
-(9,  6, '2026-05-15', true,  'UTI com todos os extintores conformes.'),
-(11, 3, '2026-05-18', true,  'Escola em conformidade.'),
-(13, 4, '2026-05-20', true,  'Galpao aprovado.'),
-(15, 2, '2026-05-22', true,  'Alarme funcionando corretamente.'),
-(19, 6, '2026-05-25', true,  'Hidrante com pressao adequada.'),
-(21, 3, '2026-05-28', true,  'Hospital aprovado.');
+(1,  2, '2026-06-01', true,  'Tudo em conformidade.'),
+(3,  3, '2026-06-02', true,  'Pressao adequada, lacre intacto.'),
+(5,  2, '2026-06-03', true,  'Extintor em perfeito estado.'),
+(8,  6, '2026-06-04', true,  'Inspecao hospitalar aprovada.'),
+(9,  6, '2026-06-05', true,  'UTI com todos os extintores conformes.'),
+(11, 3, '2026-06-06', true,  'Escola em conformidade.'),
+(13, 4, '2026-06-07', true,  'Galpao aprovado.'),
+(15, 2, '2026-06-08', true,  'Alarme funcionando corretamente.'),
+(19, 6, '2026-06-09', true,  'Hidrante com pressao adequada.'),
+(21, 3, '2026-06-10', true,  'Hospital aprovado.');
 
 -- ── Inspeções reprovadas ──────────────────────────────────
 INSERT IGNORE INTO inspecao (id_equipamento, id_responsavel, data_inspecao, aprovado, observacoes) VALUES
-(2,  2, '2026-05-11', false, 'Extintor com pressao baixa, lacre rompido.'),
-(7,  3, '2026-05-13', false, 'Extintor vencido ha mais de 6 meses.'),
-(17, 4, '2026-05-16', false, 'Alarme de temperatura com sensor defeituoso.'),
-(18, 2, '2026-05-19', false, 'Alarme nao disparou no teste.'),
-(20, 6, '2026-05-23', false, 'Hidrante com mangueira danificada.');
+(2,  2, '2026-06-01', false, 'Extintor com pressao baixa, lacre rompido.'),
+(7,  3, '2026-06-02', false, 'Extintor vencido ha mais de 6 meses.'),
+(17, 4, '2026-06-03', false, 'Alarme de temperatura com sensor defeituoso.'),
+(18, 2, '2026-06-04', false, 'Alarme nao disparou no teste.'),
+(20, 6, '2026-06-05', false, 'Hidrante com mangueira danificada.');
 
 -- ── Agendamentos ─────────────────────────────────────────
 INSERT IGNORE INTO agendamento (id_responsavel, data, tipo, status, titulo, descricao) VALUES

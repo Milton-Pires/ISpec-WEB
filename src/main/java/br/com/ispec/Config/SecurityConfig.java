@@ -37,31 +37,35 @@ public class SecurityConfig {
                         .requestMatchers("/", "/index.html", "/pages/**", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
 
-                                // TECNICO pode apenas visualizar clientes
-                                .requestMatchers(HttpMethod.GET, "/clientes/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
+                        // ── Regras específicas ANTES das gerais ──
 
-                                // FISCAL não pode deletar clientes
-                                .requestMatchers(HttpMethod.DELETE, "/clientes/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/usuarios/todos").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
 
-                                // Clientes — TECNICO não tem acesso a POST/PUT/DELETE
-                                .requestMatchers("/clientes/**").hasAnyRole("ADMIN", "FISCAL")
+                        // FISCAL não pode deletar clientes
+                        .requestMatchers(HttpMethod.DELETE, "/clientes/**").hasRole("ADMIN")
 
-                        // Equipamentos, Localizações, Inspeções, Manutenções — todos acessam
+                        // FISCAL só visualiza equipamentos
+                        .requestMatchers(HttpMethod.GET, "/equipamentos/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
+                        .requestMatchers("/equipamentos/**").hasAnyRole("ADMIN", "TECNICO")
+
+                        // TECNICO pode visualizar clientes mas não criar/editar/deletar
+                        .requestMatchers(HttpMethod.GET, "/clientes/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
+                        .requestMatchers("/clientes/**").hasAnyRole("ADMIN", "FISCAL")
+
+                        // Todos acessam equipamentos, localizações, inspeções, agendamentos, avisos
                         .requestMatchers("/equipamentos/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
                         .requestMatchers("/localizacoes/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
                         .requestMatchers("/inspecoes/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
                         .requestMatchers("/agendamentos/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
                         .requestMatchers("/avisos/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
+                        .requestMatchers("/perguntas-inspecao/**").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
 
-                        //APENAS PARA CADASTRAR USUARIOS FACIL!!!:
-                        .requestMatchers("/auth/**").permitAll()
-
-                        // Relatórios, logs e usuários — só ADMIN
+                        // Apenas ADMIN
+                        .requestMatchers(HttpMethod.GET, "/usuarios/me").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
                         .requestMatchers("/usuarios/**").hasRole("ADMIN")
                         .requestMatchers("/relatorios/**").hasRole("ADMIN")
                         .requestMatchers("/logs/**").hasRole("ADMIN")
 
-                        // Todo o resto exige autenticação
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2

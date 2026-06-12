@@ -3,6 +3,7 @@ package br.com.ispec.Controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.ispec.Entities.Usuario;
@@ -45,5 +46,16 @@ public class UsuarioController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<Usuario> me(Authentication authentication) {
+        Usuario usuario = service.buscarPorEmail(authentication.getName());
+        return ResponseEntity.ok(usuario);
+    }
+
+    @GetMapping("/todos")
+    public List<Usuario> listarTodos() {
+        return service.listarTodos();
     }
 }
