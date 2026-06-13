@@ -36,6 +36,8 @@ public class SecurityConfig {
                         // Recursos públicos
                         .requestMatchers("/", "/index.html", "/pages/**", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/usuarios/me").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
+                        .requestMatchers("/usuarios/todos").hasAnyRole("ADMIN", "FISCAL", "TECNICO")
 
                         // ── Regras específicas ANTES das gerais ──
 

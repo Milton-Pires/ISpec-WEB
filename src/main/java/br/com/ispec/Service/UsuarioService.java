@@ -52,4 +52,14 @@ public class UsuarioService {
         usuario.setTipo(dados.getTipo());
         return repository.save(usuario);
     }
+
+    public void trocarSenha(String email, String senhaAtual, String novaSenha) {
+        Usuario usuario = buscarPorEmail(email);
+        if (!passwordEncoder.matches(senhaAtual, usuario.getSenha())) {
+            throw new IllegalArgumentException("Senha atual incorreta.");
+        }
+        SenhaValidator.validar(novaSenha);
+        usuario.setSenha(passwordEncoder.encode(novaSenha));
+        repository.save(usuario);
+    }
 }

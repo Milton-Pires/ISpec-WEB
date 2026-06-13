@@ -1,6 +1,8 @@
 package br.com.ispec.Controller;
 
+import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -57,5 +59,26 @@ public class UsuarioController {
     @GetMapping("/todos")
     public List<Usuario> listarTodos() {
         return service.listarTodos();
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<?> atualizarPerfil(@RequestBody Usuario dados, Principal principal) {
+        try {
+            Usuario atual = service.buscarPorEmail(principal.getName());
+            Usuario atualizado = service.atualizar(atual.getId(), dados);
+            return ResponseEntity.ok(atualizado);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PatchMapping("/me/senha")
+    public ResponseEntity<?> trocarSenha(@RequestBody Map<String, String> body, Principal principal) {
+        try {
+            service.trocarSenha(principal.getName(), body.get("senhaAtual"), body.get("novaSenha"));
+            return ResponseEntity.ok("Senha alterada com sucesso!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
