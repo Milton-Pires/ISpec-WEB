@@ -4,13 +4,37 @@ Aplicação web full-stack para gestão e inspeção de equipamentos de combate 
 
 O sistema permite o cadastro de equipamentos, o registro de inspeções técnicas e a geração de relatórios, com controle de acesso baseado em perfis de usuário (Administrador, Fiscal e Técnico).
 
+---
+
+## 📸 Capturas de tela
+
+### Painel Principal
+![Painel Principal](docs/screenshots/screenshot-painel.png)
+
+### Avisos e Alertas
+![Avisos](docs/screenshots/screenshot-avisos.png)
+
+### Cadastro de Clientes
+![Clientes](docs/screenshots/screenshot-clientes.png)
+
+### Agenda de Inspeções
+![Agenda](docs/screenshots/screenshot-agenda.png)
+
+### Geração de Relatórios
+![Relatórios](docs/screenshots/screenshot-relatorios.png)
+
+---
+
 ## ✨ Funcionalidades
 
+- Painel principal com resumo de inspeções, equipamentos e avisos do dia
 - Cadastro e gestão de equipamentos de incêndio (extintores, alarmes, hidrantes)
+- Sistema de avisos automáticos para equipamentos vencidos ou próximos do vencimento
 - Registro e acompanhamento de inspeções técnicas
-- Autenticação e autorização via JWT, com controle de acesso por perfil
+- Agenda visual com tipos de evento por cor (Inspeção, Manutenção, Visita Técnica)
+- Autenticação e autorização via JWT, com controle de acesso por perfil (Administrador, Fiscal, Técnico)
 - Login social com Google (OAuth2)
-- Geração de relatórios em PDF e Excel
+- Geração de relatórios em PDF e Excel (Inspeções, Manutenções, Equipamentos e Relatório Geral)
 - API REST consumida também por um aplicativo Android complementar
 
 ## 🛠️ Tecnologias
@@ -18,7 +42,7 @@ O sistema permite o cadastro de equipamentos, o registro de inspeções técnica
 **Backend**
 - Java 21
 - Spring Boot
-- Spring Security (JWT)
+- Spring Security (JWT + OAuth2)
 - MySQL
 - iText (geração de PDF)
 - Apache POI (geração de Excel)
@@ -28,14 +52,14 @@ O sistema permite o cadastro de equipamentos, o registro de inspeções técnica
 - Tailwind CSS
 
 **Mobile**
-- Aplicativo Android nativo, consumindo a API via Retrofit
+- Aplicativo Android nativo consumindo a API via Retrofit
 
 ## 🏗️ Arquitetura
 
 - API REST organizada em camadas (controller, service, repository)
-- Modelagem de herança das categorias de equipamentos (extintor, alarme, hidrante) utilizando `InheritanceType.JOINED`
-- Uso de DTOs dedicados para evitar problemas de serialização/deserialização de subtipos
-- Endpoints específicos para operações comuns entre diferentes perfis de usuário (ex: `/usuarios/me`)
+- Herança de equipamentos (`Extintor`, `Alarme`, `Hidrante`) com `InheritanceType.JOINED`
+- DTOs dedicados para serialização/deserialização segura de subtipos
+- Controle de acesso por perfil com regras específicas por endpoint
 
 ## 🚀 Como executar o projeto
 
@@ -60,15 +84,11 @@ cd ISpec-WEB
 
 A aplicação estará disponível em `http://localhost:8080`.
 
-## 📸 Capturas de tela
-
-_Em breve._
-
 ## 📌 Status do projeto
 
-Concluído – projeto de TCC concluído (06/2026).
+Em desenvolvimento — projeto de TCC em andamento.
 
 ## 👤 Autor
 
-**Milton Pires Nunes Neto**
+**Milton Pires Nunes Neto**  
 [GitHub](https://github.com/Milton-Pires)
