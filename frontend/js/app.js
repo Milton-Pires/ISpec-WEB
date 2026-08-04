@@ -28,7 +28,8 @@ async function apiFetch(endpoint, options = {}) {
     ...options.headers
   };
 
-  const response = await fetch(endpoint, { ...options, headers });
+
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
 
   if (response.status === 401) {
     logout();

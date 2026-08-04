@@ -75,67 +75,57 @@ async function exportar(tipo, formato) {
     mostrarErro('Selecione um cliente antes de exportar.');
     return;
   }
-  if (!inicio || !fim) {
-    mostrarErro('Defina o período (data início e data fim).');
-    return;
-  }
-  if (inicio > fim) {
-    mostrarErro('A data início não pode ser maior que a data fim.');
-    return;
-  }
-
   msgErro.classList.add('hidden');
-  msgInst.classList.add('hidden');
+    msgInst.classList.add('hidden');
 
-  const url = `/relatorios/${tipo}/${formato}?clienteId=${clienteId}&inicio=${inicio}&fim=${fim}`;
-  const token = getToken();
+    const url = `${API_BASE_URL}/relatorios/${tipo}/${formato}?clienteId=${clienteId}&inicio=${inicio}&fim=${fim}`;
+    const token = getToken();
 
-  try {
-    const btn = event.currentTarget;
-    const textoOriginal = btn.innerHTML;
-    btn.classList.add('btn-loading');
-    btn.innerHTML = `<svg class="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(0,0,0,.2)" stroke-width="3"/><path d="M12 2a10 10 0 0110 10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg> Gerando...`;
+    try {
+      const btn = event.currentTarget;
+      const textoOriginal = btn.innerHTML;
+      btn.classList.add('btn-loading');
+      btn.innerHTML = `<svg class="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(0,0,0,.2)" stroke-width="3"/><path d="M12 2a10 10 0 0110 10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg> Gerando...`;
 
-    const response = await fetch(url, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+      const response = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
 
-    btn.classList.remove('btn-loading');
-    btn.innerHTML = textoOriginal;
+      btn.classList.remove('btn-loading');
+      btn.innerHTML = textoOriginal;
 
-    if (!response.ok) {
-      mostrarErro('Erro ao gerar o relatório. Tente novamente.');
-      return;
+      if (!response.ok) {
+        mostrarErro('Erro ao gerar o relatório. Tente novamente.');
+        return;
+      }
+
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+
+      if (formato === 'pdf') {
+        // Abre o PDF no navegador para imprimir/salvar
+        window.open(blobUrl, '_blank');
+      } else {
+        // Faz download do Excel
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = `relatorio-${tipo}-${inicio}-${fim}.xlsx`;
+        a.click();
+        window.URL.revokeObjectURL(blobUrl);
+      }
+
+    } catch (err) {
+      mostrarErro('Erro de conexão. Verifique se o servidor está rodando.');
     }
-
-    const blob = await response.blob();
-    const blobUrl = window.URL.createObjectURL(blob);
-
-    if (formato === 'pdf') {
-      // Abre o PDF no navegador para imprimir/salvar
-      window.open(blobUrl, '_blank');
-    } else {
-      // Faz download do Excel
-      const a = document.createElement('a');
-      a.href = blobUrl;
-      a.download = `relatorio-${tipo}-${inicio}-${fim}.xlsx`;
-      a.click();
-      window.URL.revokeObjectURL(blobUrl);
-    }
-
-  } catch (err) {
-    mostrarErro('Erro de conexão. Verifique se o servidor está rodando.');
   }
-}
 
-function mostrarErro(msg) {
-  const msgErro = document.getElementById('msg-erro');
-  document.getElementById('msg-erro-text').textContent = msg;
-  msgErro.classList.remove('hidden');
-  document.getElementById('msg-instrucao').classList.add('hidden');
-  setTimeout(() => msgErro.classList.add('hidden'), 5000);
-}
-
+  function mostrarErro(msg) {
+    const msgErro = document.getElementById('msg-erro');
+    document.getElementById('msg-erro-text').textContent = msg;
+    msgErro.classList.remove('hidden');
+    document.getElementById('msg-instrucao').classList.add('hidden');
+    setTimeout(() => msgErro.classList.add('hidden'), 5000);
+  }
 // ── Sidebar ──────────────────────────────
 let sidebar, overlay, isMobile;
 
