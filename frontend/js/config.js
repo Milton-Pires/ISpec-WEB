@@ -8,5 +8,5 @@ const API_BASE_URL = (() => {
   }
 
   // Produção — troque pela URL real gerada pelo Railway
-  return 'mysql://root:WkrLjJYWBQGfMSkgfMzgXledUmdsUPxo@mysql.railway.internal:3306/railway';
+  return 'https://ispec-web-production.up.railway.app';
 })();
